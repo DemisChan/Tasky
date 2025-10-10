@@ -1,23 +1,10 @@
 package com.dmd.tasky.feature.auth.presentation
 
-import android.R.attr.onClick
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,27 +19,37 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.feature.auth.R
 
 @Composable
 fun TaskyLoginScreen(
-//    viewModel: LoginViewModel
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
-
-
+    val state = viewModel.state
+    TaskyLoginContent(
+        state = state,
+        onEmailChanged = viewModel::onEmailChanged,
+        onPasswordChanged = viewModel::onPasswordChanged,
+        onLoginClicked = viewModel::onLoginClicked,
+        modifier = modifier
+    )
 }
 
 @Composable
 fun TaskyLoginContent(
-    // state: LoginState,
-    // onEvent: (LoginEvent) -> Unit,
+    state: LoginUiState,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onLoginClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold { paddingValues ->
+    Scaffold {
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(it)
                 .background(color = Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -78,6 +75,8 @@ fun TaskyLoginContent(
             ) {
                 LoginInputField(
                     text = "Email",
+                    value = state.email,
+                    onValueChange = onEmailChanged,
                     modifier = Modifier
                         .padding(
                             top = 28.dp,
@@ -89,6 +88,8 @@ fun TaskyLoginContent(
                 )
                 LoginInputField(
                     text = "Password",
+                    value = state.password,
+                    onValueChange = onPasswordChanged,
                     modifier = Modifier
                         .padding(
                             start = 16.dp,
@@ -99,6 +100,7 @@ fun TaskyLoginContent(
                 )
                 LoginButton(
                     text = "LOG IN",
+                    onClick = onLoginClicked,
                     modifier = Modifier
                         .padding(
                             top = 32.dp,
@@ -126,20 +128,26 @@ fun TaskyLoginContent(
 @Composable
 fun LoginInputField(
     text: String,
+    value: String,
+    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     OutlinedTextField(
-        value = "",
+        value = value,
         label = { Text(text) },
-        onValueChange = {},
+        onValueChange = onValueChange,
         modifier = modifier
     )
 }
 
 @Composable
-fun LoginButton(text: String, modifier: Modifier = Modifier) {
+fun LoginButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     TextButton(
-        onClick = { /*TODO*/ },
+        onClick = onClick,
         colors = ButtonDefaults.textButtonColors(
             containerColor = Color.Black,
             contentColor = Color.White
@@ -179,5 +187,10 @@ val annotatedString = buildAnnotatedString {
 @Preview(showBackground = false, backgroundColor = 0XFF16161C)
 @Composable
 fun TaskyLoginContentPreview() {
-    TaskyLoginContent()
+    TaskyLoginContent(
+        state = LoginUiState(),
+        onEmailChanged = {},
+        onPasswordChanged = {},
+        onLoginClicked = {}
+    )
 }
