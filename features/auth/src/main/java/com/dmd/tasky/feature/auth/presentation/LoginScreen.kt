@@ -15,6 +15,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -84,12 +86,14 @@ fun TaskyLoginContent(
                             end = 16.dp
                         )
                         .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally),
+                    hidePassword = null
                 )
                 LoginInputField(
                     text = "Password",
                     value = state.password,
                     onValueChange = onPasswordChanged,
+                    hidePassword = PasswordVisualTransformation(),
                     modifier = Modifier
                         .padding(
                             start = 16.dp,
@@ -130,11 +134,14 @@ fun LoginInputField(
     text: String,
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hidePassword: VisualTransformation?,
 ) {
     OutlinedTextField(
         value = value,
         label = { Text(text) },
+        maxLines = 1,
+        visualTransformation = hidePassword?: VisualTransformation.None,
         onValueChange = onValueChange,
         modifier = modifier
     )

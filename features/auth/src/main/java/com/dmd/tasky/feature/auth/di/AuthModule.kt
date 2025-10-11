@@ -30,8 +30,11 @@ object AuthModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(apiKeyInterceptor: ApiKeyInterceptor): OkHttpClient {
+        val logging = HttpLoggingInterceptor()
+        logging.level = HttpLoggingInterceptor.Level.BODY
         return OkHttpClient.Builder()
             .addInterceptor (apiKeyInterceptor)
+            .addInterceptor(logging)
             .build()
     }
 

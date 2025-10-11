@@ -8,5 +8,5 @@ data class AuthResponse(
     val refreshToken: String,
     val username: String,
     val userId: String,
-    val accessTokenExpirationTimestamp: Long // Added to match the server JSON
+    val accessTokenExpirationTimestamp: Long,
 )
