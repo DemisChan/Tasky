@@ -34,6 +34,7 @@ android {
         getByName("debug") {
             val apiKey  = localProperties.getProperty("apiKey", "")
             buildConfigField("String", "API_KEY", apiKey)
+            buildConfigField("String", "BASE_URL", "\"https://tasky.pl-coding.com/\"")
         }
         release {
             isMinifyEnabled = false

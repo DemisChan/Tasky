@@ -1,8 +1,9 @@
 package com.dmd.tasky.feature.auth.di
 
+import com.dmd.tasky.feature.auth.BuildConfig
 import com.dmd.tasky.feature.auth.data.remote.ApiKeyInterceptor
 import com.dmd.tasky.feature.auth.data.remote.AuthApi
-import com.dmd.tasky.feature.auth.data.repository.AuthRepositoryImpl
+import com.dmd.tasky.feature.auth.data.repository.DefaultAuthRepository
 import com.dmd.tasky.feature.auth.domain.AuthRepository
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
@@ -43,7 +44,7 @@ object AuthModule {
     fun provideAuthApi(okHttpClient: OkHttpClient): AuthApi {
         val networkJson = Json { ignoreUnknownKeys = true }
         return Retrofit.Builder()
-            .baseUrl("https://tasky.pl-coding.com")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
             .build()
@@ -53,6 +54,6 @@ object AuthModule {
     @Provides
     @Singleton
     fun provideAuthRepository(api: AuthApi): AuthRepository {
-        return AuthRepositoryImpl(api)
+        return DefaultAuthRepository(api)
     }
 }
