@@ -2,6 +2,7 @@ package com.dmd.tasky.feature.auth.presentation
 
 import com.dmd.tasky.feature.auth.domain.AuthRepository
 import com.dmd.tasky.feature.auth.domain.model.LoginResult
+import com.dmd.tasky.feature.auth.presentation.login.LoginViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi

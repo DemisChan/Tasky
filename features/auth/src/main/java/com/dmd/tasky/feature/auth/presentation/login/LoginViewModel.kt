@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation
+package com.dmd.tasky.feature.auth.presentation.login
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,16 +20,20 @@ class LoginViewModel @Inject constructor(
     var state by mutableStateOf(LoginUiState())
         private set
 
-    fun onEmailChanged(email: String) {
-        state = state.copy(email = email)
-    }
-
-    fun onPasswordChanged(password: String) {
-        state = state.copy(password = password)
-    }
-
-    fun onLoginClicked() {
-        login()
+    fun onAction(action: LoginAction) {
+        when (action) {
+            is LoginAction.EmailChanged -> {
+                state = state.copy(email = action.email)
+            }
+            is LoginAction.PasswordChanged -> {
+                state = state.copy(password = action.password)
+            }
+            is LoginAction.LoginClicked -> {
+                login()
+            }
+            is LoginAction.SignUpClicked -> {
+            }
+        }
     }
 
     private fun login() {

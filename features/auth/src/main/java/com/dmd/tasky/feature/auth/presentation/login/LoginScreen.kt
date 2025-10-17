@@ -1,11 +1,18 @@
-package com.dmd.tasky.feature.auth.presentation
+package com.dmd.tasky.feature.auth.presentation.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,12 +36,10 @@ fun TaskyLoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state
+    val loginUiState = viewModel.state
     TaskyLoginContent(
-        state = state,
-        onEmailChanged = viewModel::onEmailChanged,
-        onPasswordChanged = viewModel::onPasswordChanged,
-        onLoginClicked = viewModel::onLoginClicked,
+        state = loginUiState,
+        onAction = viewModel::onAction,
         modifier = modifier
     )
 }
@@ -42,16 +47,16 @@ fun TaskyLoginScreen(
 @Composable
 fun TaskyLoginContent(
     state: LoginUiState,
-    onEmailChanged: (String) -> Unit,
-    onPasswordChanged: (String) -> Unit,
-    onLoginClicked: () -> Unit,
+    onAction: (LoginAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Scaffold {
+    var passwordVisible by remember { mutableStateOf(false) }
+    
+    Scaffold { paddingValues ->
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .padding(it)
+                .padding(paddingValues)
                 .background(color = Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -78,7 +83,7 @@ fun TaskyLoginContent(
                 LoginInputField(
                     text = "Email",
                     value = state.email,
-                    onValueChange = onEmailChanged,
+                    onValueChange = { onAction(LoginAction.EmailChanged(it)) },
                     modifier = Modifier
                         .padding(
                             top = 28.dp,
@@ -87,24 +92,33 @@ fun TaskyLoginContent(
                         )
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally),
-                    hidePassword = null
+                    hidePassword = null,
+                    trailingIcon = null
                 )
                 LoginInputField(
                     text = "Password",
                     value = state.password,
-                    onValueChange = onPasswordChanged,
-                    hidePassword = PasswordVisualTransformation(),
+                    onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
+                    hidePassword = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier
                         .padding(
                             start = 16.dp,
                             end = 16.dp
                         )
                         .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                            )
+                        }
+                    }
                 )
                 LoginButton(
                     text = "LOG IN",
-                    onClick = onLoginClicked,
+                    onClick = { onAction(LoginAction.LoginClicked) },
                     modifier = Modifier
                         .padding(
                             top = 32.dp,
@@ -115,7 +129,7 @@ fun TaskyLoginContent(
                         .align(Alignment.CenterHorizontally)
                 )
                 BasicText(
-                    text = annotatedString,
+                    text = annotatedString(onAction(LoginAction.SignUpClicked)),
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -136,6 +150,7 @@ fun LoginInputField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     hidePassword: VisualTransformation?,
+    trailingIcon: (@Composable () -> Unit)?
 ) {
     OutlinedTextField(
         value = value,
@@ -143,6 +158,7 @@ fun LoginInputField(
         maxLines = 1,
         visualTransformation = hidePassword?: VisualTransformation.None,
         onValueChange = onValueChange,
+        trailingIcon = trailingIcon,
         modifier = modifier
     )
 }
@@ -171,12 +187,12 @@ fun LoginButton(
 
 }
 
-val annotatedString = buildAnnotatedString {
+fun annotatedString(onAction: Unit) = buildAnnotatedString {
     append("DON’T HAVE AN ACCOUNT? ")
 
     val signUp = LinkAnnotation.Clickable(
         tag = "SIGN UP",
-        linkInteractionListener = {}
+        linkInteractionListener = {onAction}
     )
     pushLink(signUp)
 
@@ -196,8 +212,6 @@ val annotatedString = buildAnnotatedString {
 fun TaskyLoginContentPreview() {
     TaskyLoginContent(
         state = LoginUiState(),
-        onEmailChanged = {},
-        onPasswordChanged = {},
-        onLoginClicked = {}
+        onAction = {}
     )
 }
