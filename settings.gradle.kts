@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Tasky"
 include(":app")
+include(":features:auth")
+include(":core:domain:util")

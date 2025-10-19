@@ -1,1 +1,13 @@
-/build
+# IDE files
+.idea/
+.gradle/
+local.properties
+*.iml
+
+# Build files
+build/
+*/build/
+
+# Other
+captures/
+.DS_Store
