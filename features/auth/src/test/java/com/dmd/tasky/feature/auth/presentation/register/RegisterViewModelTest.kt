@@ -81,7 +81,10 @@ class RegisterViewModelTest {
         advanceUntilIdle()
         assertEquals(false, registerViewModel.state.registrationSuccess)
         assertEquals(false, registerViewModel.state.isLoading)
-        assertEquals("This email is already registered. Try logging in?", registerViewModel.state.error)
+        assertEquals(
+            "This email is already registered. Try logging in?",
+            registerViewModel.state.error
+        )
     }
 
     @Test
@@ -100,5 +103,24 @@ class RegisterViewModelTest {
         assertEquals(false, registerViewModel.state.registrationSuccess)
         assertEquals(false, registerViewModel.state.isLoading)
         assertEquals("Test error", registerViewModel.state.error)
+    }
+
+    @Test
+    fun `RegisterClicked clears previous error`() = runTest {
+        authRepository.registerResult = RegisterResult.Error("Test error")
+        registerViewModel.onAction(RegisterAction.RegisterClicked)
+        advanceUntilIdle()
+
+        assertEquals("Test error", registerViewModel.state.error)
+
+        authRepository.registerResult = RegisterResult.Success
+        registerViewModel.onAction(RegisterAction.RegisterClicked)
+
+        assertEquals(null, registerViewModel.state.error)
+
+        advanceUntilIdle()
+        assertEquals(true, registerViewModel.state.registrationSuccess)
+
+
     }
 }

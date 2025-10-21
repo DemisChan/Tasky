@@ -8,15 +8,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.feature.auth.R
+import com.dmd.tasky.feature.auth.presentation.login.LoginButton
 import com.dmd.tasky.feature.auth.presentation.login.LoginInputField
 import com.dmd.tasky.feature.auth.presentation.login.annotatedString
 
@@ -143,33 +141,19 @@ fun TaskyRegisterContent(
                         }
                     }
                 )
-                Button(
+                // TODO(Add enabled flag to button)
+                LoginButton(
+                    text = "GET STARTED",
                     onClick = { onAction(RegisterAction.RegisterClicked) },
-                    enabled = !state.isLoading,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (state.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = MaterialTheme.colorScheme.onPrimary
+                    modifier = Modifier
+                        .padding(
+                            top = 32.dp,
+                            start = 16.dp,
+                            end = 16.dp
                         )
-                    } else {
-                        Text("REGISTER")
-                    }
-                }
-
-//                LoginButton(
-//                    text = "GET STARTED",
-//                    onClick = { onAction(RegisterAction.RegisterClicked) },
-//                    modifier = Modifier
-//                        .padding(
-//                            top = 32.dp,
-//                            start = 16.dp,
-//                            end = 16.dp
-//                        )
-//                        .fillMaxWidth()
-//                        .align(Alignment.CenterHorizontally)
-//                )
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                )
 
                 BasicText(
                     text = annotatedString(
