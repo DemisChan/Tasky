@@ -56,7 +56,6 @@ class RegisterViewModelTest {
     fun `RegisterClicked success scenario`() = runTest {
         authRepository.registerResult = RegisterResult.Success
         registerViewModel.onAction(RegisterAction.FullNameChanged("Test"))
-        registerViewModel.onAction(RegisterAction.FullNameChanged("Test"))
         registerViewModel.onAction(RegisterAction.EmailChanged("Test@test.com"))
         registerViewModel.onAction(RegisterAction.PasswordChanged("Test"))
 

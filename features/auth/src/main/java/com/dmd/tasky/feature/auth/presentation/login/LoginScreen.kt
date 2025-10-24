@@ -60,12 +60,11 @@ fun TaskyLoginScreen(
 }
 
 @Composable
-fun TaskyLoginContent(
+private fun TaskyLoginContent(
     state: LoginUiState,
     onAction: (LoginAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var passwordVisible by remember { mutableStateOf(false) }
 
     Scaffold { paddingValues ->
         Column(
@@ -114,7 +113,7 @@ fun TaskyLoginContent(
                     text = "Password",
                     value = state.password,
                     onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
-                    hidePassword = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier
                         .padding(
                             start = 16.dp,
@@ -123,10 +122,10 @@ fun TaskyLoginContent(
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally),
                     trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = { onAction(LoginAction.PasswordVisibilityChanged) }) {
                             Icon(
-                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (state.passwordVisible) "Hide password" else "Show password"
                             )
                         }
                     }
@@ -239,8 +238,27 @@ fun annotatedString(onAction: Unit, state: String) = buildAnnotatedString {
 @Preview(showBackground = false, backgroundColor = 0XFF16161C)
 @Composable
 fun TaskyLoginContentPreview() {
+    var state by remember { mutableStateOf(LoginUiState()) }
+
     TaskyLoginContent(
-        state = LoginUiState(),
-        onAction = {}
+        state = state,
+        onAction = { action ->
+            when (action) {
+                is LoginAction.EmailChanged -> {
+                    state = state.copy(email = action.email)
+                }
+
+                is LoginAction.PasswordChanged -> {
+                    state = state.copy(password = action.password)
+                }
+
+                is LoginAction.PasswordVisibilityChanged -> {
+                    state = state.copy(passwordVisible = !state.passwordVisible)
+                }
+
+                is LoginAction.LoginClicked -> {}
+                is LoginAction.SignUpClicked -> {}
+            }
+        }
     )
 }

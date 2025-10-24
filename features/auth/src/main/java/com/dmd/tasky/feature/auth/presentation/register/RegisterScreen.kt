@@ -46,6 +46,7 @@ fun TaskyRegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
 ) {
     val registerUiState = viewModel.state
+
     TaskyRegisterContent(
         state = registerUiState,
         onAction = viewModel::onAction,
@@ -54,13 +55,11 @@ fun TaskyRegisterScreen(
 }
 
 @Composable
-fun TaskyRegisterContent(
+private fun TaskyRegisterContent(
     state: RegisterUiState,
     onAction: (RegisterAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
-    var passwordVisible by remember { mutableStateOf(false) }
 
     Scaffold { paddingValues ->
         Column(
@@ -124,7 +123,7 @@ fun TaskyRegisterContent(
                     text = "Password",
                     value = state.password,
                     onValueChange = { onAction(RegisterAction.PasswordChanged(it)) },
-                    hidePassword = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     modifier = Modifier
                         .padding(
                             start = 16.dp,
@@ -133,10 +132,10 @@ fun TaskyRegisterContent(
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally),
                     trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        IconButton(onClick = { onAction(RegisterAction.PasswordVisibilityChanged) }) {
                             Icon(
-                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                                imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (state.passwordVisible) "Hide password" else "Show password"
                             )
                         }
                     }
@@ -190,8 +189,33 @@ fun TaskyRegisterContent(
 @Preview(showBackground = false, backgroundColor = 0XFF16161C)
 @Composable
 fun TaskyRegisterContentPreview() {
+
+    var state by remember { mutableStateOf(RegisterUiState()) }
+
     TaskyRegisterContent(
-        state = RegisterUiState(),
-        onAction = {}
+        state = state,
+        onAction = { action ->
+            when (action) {
+                is RegisterAction.FullNameChanged -> {
+                    state = state.copy(fullName = action.fullName)
+                }
+
+                is RegisterAction.EmailChanged -> {
+                    state = state.copy(email = action.email)
+                }
+
+                is RegisterAction.PasswordChanged -> {
+                    state = state.copy(password = action.password)
+                }
+
+                is RegisterAction.PasswordVisibilityChanged -> {
+                    state = state.copy(passwordVisible = !state.passwordVisible)
+                }
+
+                is RegisterAction.RegisterClicked -> {}
+                is RegisterAction.LoginClicked -> {}
+
+            }
+        }
     )
 }
