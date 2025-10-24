@@ -1,19 +1,21 @@
-package com.dmd.tasky.feature.auth.presentation
+package com.dmd.tasky.feature.auth.presentation.login
 
 import com.dmd.tasky.feature.auth.domain.AuthRepository
 import com.dmd.tasky.feature.auth.domain.model.LoginResult
-import com.dmd.tasky.feature.auth.presentation.login.LoginViewModel
+import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class LoginViewModelTest {
+
+    // This is with Mocks
 
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
@@ -30,15 +32,15 @@ class LoginViewModelTest {
     @Test
     fun `onEmailChanged should update email`() {
         val email = "test@test.com"
-        loginViewModel.onEmailChanged(email)
-        assertEquals(email, loginViewModel.state.email)
+        loginViewModel.onAction(LoginAction.EmailChanged(email))
+        Assert.assertEquals(email, loginViewModel.state.email)
     }
 
     @Test
     fun `onPasswordChanged should update password`() {
         val password = "password"
-        loginViewModel.onPasswordChanged(password)
-        assertEquals(password, loginViewModel.state.password)
+        loginViewModel.onAction(LoginAction.PasswordChanged(password))
+        Assert.assertEquals(password, loginViewModel.state.password)
     }
 
     @Test
@@ -46,10 +48,10 @@ class LoginViewModelTest {
         val token = "token"
         coEvery { authRepository.login(any(), any()) } returns LoginResult.Success(token)
 
-        loginViewModel.onLoginClicked()
+        loginViewModel.onAction(LoginAction.LoginClicked)
 
-        assertEquals(null, loginViewModel.state.error)
-        assertEquals(false, loginViewModel.state.isLoading)
+        Assert.assertEquals(null, loginViewModel.state.error)
+        Assert.assertEquals(false, loginViewModel.state.isLoading)
     }
 
 
@@ -58,19 +60,19 @@ class LoginViewModelTest {
         val errorMessage = "error"
         coEvery { authRepository.login(any(), any()) } returns LoginResult.Error(errorMessage)
 
-        loginViewModel.onLoginClicked()
+        loginViewModel.onAction(LoginAction.LoginClicked)
 
-        assertEquals(false, loginViewModel.state.isLoading)
-        assertEquals(errorMessage, loginViewModel.state.error)
+        Assert.assertEquals(false, loginViewModel.state.isLoading)
+        Assert.assertEquals(errorMessage, loginViewModel.state.error)
     }
 
     @Test
     fun `login with invalid credentials should update state correctly`() = runTest {
         coEvery { authRepository.login(any(), any()) } returns LoginResult.InvalidCredentials
 
-        loginViewModel.onLoginClicked()
+        loginViewModel.onAction(LoginAction.LoginClicked)
 
-        assertEquals(false, loginViewModel.state.isLoading)
-        assertEquals("Invalid credentials", loginViewModel.state.error)
+        Assert.assertEquals(false, loginViewModel.state.isLoading)
+        Assert.assertEquals("Invalid credentials", loginViewModel.state.error)
     }
 }

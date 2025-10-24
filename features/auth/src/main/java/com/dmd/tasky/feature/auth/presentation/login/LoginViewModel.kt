@@ -25,12 +25,19 @@ class LoginViewModel @Inject constructor(
             is LoginAction.EmailChanged -> {
                 state = state.copy(email = action.email)
             }
+
             is LoginAction.PasswordChanged -> {
                 state = state.copy(password = action.password)
             }
+
+            is LoginAction.PasswordVisibilityChanged -> {
+                state = state.copy(passwordVisible = !state.passwordVisible)
+            }
+
             is LoginAction.LoginClicked -> {
                 login()
             }
+
             is LoginAction.SignUpClicked -> {
             }
         }
@@ -66,5 +73,6 @@ data class LoginUiState(
     val email: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
+    var passwordVisible: Boolean = false,
     val error: String? = null
 )

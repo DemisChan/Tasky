@@ -1,5 +1,4 @@
-package com.dmd.tasky.feature.auth.data.remote
-
+package com.dmd.tasky.feature.auth.data.remote.dto
 
 import kotlinx.serialization.Serializable
 

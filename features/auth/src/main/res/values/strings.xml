@@ -2,4 +2,6 @@
 <resources>
     <string name="login_greeting">Welcome Back!</string>
     <string name="don_t_have_an_account">DON’T HAVE AN ACCOUNT? SIGN UP</string>
+
+    <string name="register_greeting">Create your account</string>
 </resources>
