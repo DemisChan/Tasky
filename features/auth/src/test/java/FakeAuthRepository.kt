@@ -1,11 +1,16 @@
+import androidx.compose.material3.RangeSlider
+import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.feature.auth.domain.AuthRepository
+import com.dmd.tasky.feature.auth.domain.model.AuthError
 import com.dmd.tasky.feature.auth.domain.model.LoginResult
 import com.dmd.tasky.feature.auth.domain.model.RegisterResult
 import kotlinx.coroutines.delay
 
 class FakeAuthRepository : AuthRepository {
 
-    var registerResult: RegisterResult = RegisterResult.Success
+    var registerResult: RegisterResult = Result.Success(Unit)
+
+
 
     override suspend fun register(
         fullName: String,

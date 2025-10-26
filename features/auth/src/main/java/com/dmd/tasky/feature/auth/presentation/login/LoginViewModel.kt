@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dmd.tasky.core.domain.util.onError
+import com.dmd.tasky.core.domain.util.onSuccess
 import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.domain.model.LoginResult
+import com.dmd.tasky.feature.auth.domain.model.toUiMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -47,24 +49,16 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoading = true)
             Timber.d("Login started")
-            val result = authRepository.login(state.email, state.password)
-
-            state = state.copy(isLoading = false)
-            when (result) {
-                is LoginResult.Success -> {
-                    Timber.d("Login success")
+            authRepository.login(state.email, state.password)
+                .onSuccess { token ->
+                    Timber.d("Login successful")
+                    state = state.copy(isLoading = false, error = null)
+                    // TODO: Save token, navigate to next screen
                 }
-
-                is LoginResult.Error -> {
-                    Timber.e(result.message)
-                    state = state.copy(error = result.message)
+                .onError { error ->
+                    Timber.e("Login failed: $error")
+                    state = state.copy(isLoading = false, error = error.toUiMessage())
                 }
-
-                is LoginResult.InvalidCredentials -> {
-                    Timber.d("Invalid credentials")
-                    state = state.copy(error = "Invalid credentials")
-                }
-            }
         }
     }
 }
