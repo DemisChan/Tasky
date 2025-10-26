@@ -5,4 +5,5 @@ sealed interface LoginAction {
     data class PasswordChanged(val password: String) : LoginAction
     data object LoginClicked : LoginAction
     data object SignUpClicked : LoginAction
+    data object PasswordVisibilityChanged : LoginAction
 }
