@@ -5,8 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dmd.tasky.core.domain.util.onError
+import com.dmd.tasky.core.domain.util.onSuccess
 import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.domain.model.RegisterResult
+import com.dmd.tasky.feature.auth.domain.model.toUiMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -56,30 +58,19 @@ class RegisterViewModel @Inject constructor(
             Timber.d("   Email: '${state.email}'")
             Timber.d("   Password: '${state.password}' (length: ${state.password.length})")
 
-            val result = authRepository.register(
+            authRepository.register(
                 fullName = state.fullName,
                 email = state.email,
                 password = state.password
             )
-
-            state = state.copy(isLoading = false)
-
-            when (result) {
-                is RegisterResult.Success -> {
+                .onSuccess {
                     Timber.d("Registration successful in ViewModel!")
-                    state = state.copy(registrationSuccess = true)
+                    state = state.copy(registrationSuccess = true, isLoading = false)
                 }
-
-                is RegisterResult.Error -> {
-                    Timber.e("Registration error: ${result.message}")
-                    state = state.copy(error = result.message)
+                .onError { error ->
+                    Timber.e("Registration error: $error")
+                    state = state.copy(error = error.toUiMessage(), isLoading = false)
                 }
-
-                is RegisterResult.UserAlreadyExists -> {
-                    Timber.d("User already exists")
-                    state = state.copy(error = "This email is already registered. Try logging in?")
-                }
-            }
         }
     }
 }

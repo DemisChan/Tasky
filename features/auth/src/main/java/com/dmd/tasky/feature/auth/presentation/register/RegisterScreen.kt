@@ -3,10 +3,8 @@ package com.dmd.tasky.feature.auth.presentation.register
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
@@ -68,18 +66,17 @@ private fun TaskyRegisterContent(
                 .padding(paddingValues)
                 .background(color = Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+//            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = stringResource(R.string.register_greeting),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .padding(top = 70.dp)
+                    .padding(top = 40.dp, bottom = 40.dp)
                     .align(Alignment.CenterHorizontally),
                 color = Color.White
             )
-            Spacer(modifier = Modifier.height(36.dp))
 
             Card(
                 modifier = Modifier
@@ -89,96 +86,94 @@ private fun TaskyRegisterContent(
                     topEnd = 25.dp,
                 ),
             ) {
-                LoginInputField(
-                    text = "Full Name",
-                    value = state.fullName,
-                    onValueChange = { onAction(RegisterAction.FullNameChanged(it)) },
+                Column(
                     modifier = Modifier
-                        .padding(
-                            top = 28.dp,
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    hidePassword = null,
-                    trailingIcon = null
-                )
-                LoginInputField(
-                    text = "Email",
-                    value = state.email,
-                    onValueChange = { onAction(RegisterAction.EmailChanged(it)) },
-                    modifier = Modifier
-                        .padding(
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    hidePassword = null,
-                    trailingIcon = null
-                )
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    LoginInputField(
+                        text = "Full Name",
+                        value = state.fullName,
+                        onValueChange = { onAction(RegisterAction.FullNameChanged(it)) },
+                        modifier = Modifier
+                            .padding(
+                                top = 28.dp,
+                            )
+                            .fillMaxWidth(),
+                        hidePassword = null,
+                        trailingIcon = null
+                    )
+                    LoginInputField(
+                        text = "Email",
+                        value = state.email,
+                        onValueChange = { onAction(RegisterAction.EmailChanged(it)) },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        hidePassword = null,
+                        trailingIcon = null
+                    )
 
-                LoginInputField(
-                    text = "Password",
-                    value = state.password,
-                    onValueChange = { onAction(RegisterAction.PasswordChanged(it)) },
-                    hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier
-                        .padding(
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    trailingIcon = {
-                        IconButton(onClick = { onAction(RegisterAction.PasswordVisibilityChanged) }) {
-                            Icon(
-                                imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (state.passwordVisible) "Hide password" else "Show password"
+                    LoginInputField(
+                        text = "Password",
+                        value = state.password,
+                        onValueChange = { onAction(RegisterAction.PasswordChanged(it)) },
+                        hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { onAction(RegisterAction.PasswordVisibilityChanged) }) {
+                                Icon(
+                                    imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = if (state.passwordVisible) "Hide password" else "Show password"
+                                )
+                            }
+                        }
+                    )
+                    // TODO(Add enabled flag to button)
+                    LoginButton(
+                        text = "GET STARTED",
+                        onClick = { onAction(RegisterAction.RegisterClicked) },
+                        modifier = Modifier
+                            .padding(
+                                top = 32.dp,
+                                start = 16.dp,
+                                end = 16.dp
+                            )
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    BasicText(
+                        text = annotatedString(
+                            onAction(RegisterAction.LoginClicked),
+                            state.javaClass.name
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .padding(top = 20.dp)
+                            .align(Alignment.CenterHorizontally),
+                    )
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        if (state.error != null) {
+                            Text(
+                                text = "Error: ${state.error}",
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(bottom = 16.dp)
                             )
                         }
+
+                        if (state.registrationSuccess) {
+                            Text(
+                                text = "Registration Successful!",
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                        }
+
                     }
-                )
-                // TODO(Add enabled flag to button)
-                LoginButton(
-                    text = "GET STARTED",
-                    onClick = { onAction(RegisterAction.RegisterClicked) },
-                    modifier = Modifier
-                        .padding(
-                            top = 32.dp,
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                )
-
-                BasicText(
-                    text = annotatedString(
-                        onAction(RegisterAction.LoginClicked),
-                        state.javaClass.name
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                        .align(Alignment.CenterHorizontally),
-                )
-
-                if (state.error != null) {
-                    Text(
-                        text = "Error: ${state.error}",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
-                if (state.registrationSuccess) {
-                    Text(
-                        text = "Registration Successful!",
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
                 }
             }
         }
