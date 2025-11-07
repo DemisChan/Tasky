@@ -4,4 +4,13 @@
     <string name="don_t_have_an_account">DON’T HAVE AN ACCOUNT? SIGN UP</string>
 
     <string name="register_greeting">Create your account</string>
+    <string name="error_invalid_credentials">Invalid email or password</string>
+    <string name="error_email_already_exists">User with this email already exists</string>
+    <string name="error_validation_failed">Validation failed</string>
+    <string name="error_no_internet_connection">No Internet connection</string>
+    <string name="server_error">Server error</string>
+    <string name="error_request_timed_out">Request timed out</string>
+    <string name="unknown_network_error">Unknown network error</string>
+    <string name="content_description_hide_password">Hide password</string>
+    <string name="content_description_show_password">Show password</string>
 </resources>

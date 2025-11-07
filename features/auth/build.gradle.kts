@@ -32,7 +32,7 @@ android {
 
 
         getByName("debug") {
-            val apiKey  = localProperties.getProperty("apiKey", "")
+            val apiKey = localProperties.getProperty("apiKey", "")
             buildConfigField("String", "API_KEY", apiKey)
             buildConfigField("String", "BASE_URL", "\"https://tasky.pl-coding.com/\"")
         }
@@ -54,10 +54,14 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        android.androidResources.enable = true
     }
 }
 
 dependencies {
+
+    // Modules
+    implementation(projects.core.domain.util)
 
     // Credential Manager
     implementation(libs.androidx.credentials)
@@ -95,7 +99,9 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
     debugImplementation(libs.androidx.ui.tooling)
 }

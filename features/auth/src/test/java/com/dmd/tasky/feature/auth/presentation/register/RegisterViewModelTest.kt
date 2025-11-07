@@ -1,7 +1,8 @@
 package com.dmd.tasky.feature.auth.presentation.register
 
 import FakeAuthRepository
-import com.dmd.tasky.feature.auth.domain.model.RegisterResult
+import com.dmd.tasky.core.domain.util.Result
+import com.dmd.tasky.feature.auth.domain.model.AuthError
 import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,7 +55,7 @@ class RegisterViewModelTest {
 
     @Test
     fun `RegisterClicked success scenario`() = runTest {
-        authRepository.registerResult = RegisterResult.Success
+        authRepository.registerResult = Result.Success(Unit)
         registerViewModel.onAction(RegisterAction.FullNameChanged("Test"))
         registerViewModel.onAction(RegisterAction.EmailChanged("Test@test.com"))
         registerViewModel.onAction(RegisterAction.PasswordChanged("Test"))
@@ -71,7 +72,7 @@ class RegisterViewModelTest {
 
     @Test
     fun `RegisterClicked user already exists scenario`() = runTest {
-        authRepository.registerResult = RegisterResult.UserAlreadyExists
+        authRepository.registerResult = Result.Error(AuthError.Auth.USER_ALREADY_EXISTS)
         registerViewModel.onAction(RegisterAction.FullNameChanged("Test"))
         registerViewModel.onAction(RegisterAction.EmailChanged("Test@test.com"))
         registerViewModel.onAction(RegisterAction.PasswordChanged("Test"))
@@ -81,7 +82,7 @@ class RegisterViewModelTest {
         assertEquals(false, registerViewModel.state.registrationSuccess)
         assertEquals(false, registerViewModel.state.isLoading)
         assertEquals(
-            "This email is already registered. Try logging in?",
+            "User with this email already exists",
             registerViewModel.state.error
         )
     }
@@ -89,7 +90,7 @@ class RegisterViewModelTest {
     @Test
     fun `RegisterClicked generic error scenario`() = runTest {
 
-        authRepository.registerResult = RegisterResult.Error("Test error")
+        authRepository.registerResult = Result.Error(AuthError.Network.UNKNOWN)
 
         registerViewModel.onAction(RegisterAction.FullNameChanged("Test"))
         registerViewModel.onAction(RegisterAction.EmailChanged("Test@test.com"))
@@ -101,25 +102,22 @@ class RegisterViewModelTest {
 
         assertEquals(false, registerViewModel.state.registrationSuccess)
         assertEquals(false, registerViewModel.state.isLoading)
-        assertEquals("Test error", registerViewModel.state.error)
+        assertEquals("Unknown network error", registerViewModel.state.error)
     }
 
     @Test
     fun `RegisterClicked clears previous error`() = runTest {
-        authRepository.registerResult = RegisterResult.Error("Test error")
+        authRepository.registerResult = Result.Error(AuthError.Network.UNKNOWN)
         registerViewModel.onAction(RegisterAction.RegisterClicked)
         advanceUntilIdle()
 
-        assertEquals("Test error", registerViewModel.state.error)
+        assertEquals("Unknown network error", registerViewModel.state.error)
 
-        authRepository.registerResult = RegisterResult.Success
+        authRepository.registerResult = Result.Success(Unit)
         registerViewModel.onAction(RegisterAction.RegisterClicked)
+        advanceUntilIdle()
 
         assertEquals(null, registerViewModel.state.error)
-
-        advanceUntilIdle()
         assertEquals(true, registerViewModel.state.registrationSuccess)
-
-
     }
 }

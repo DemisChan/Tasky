@@ -94,8 +94,8 @@ private fun TaskyLoginContent(
                     topEnd = 25.dp,
                 ),
             ) {
-                LoginInputField(
-                    text = "Email",
+                TaskyTextInputField(
+                    hint = "Email",
                     value = state.email,
                     onValueChange = { onAction(LoginAction.EmailChanged(it)) },
                     modifier = Modifier
@@ -109,8 +109,8 @@ private fun TaskyLoginContent(
                     hidePassword = null,
                     trailingIcon = null
                 )
-                LoginInputField(
-                    text = "Password",
+                TaskyTextInputField(
+                    hint = "Password",
                     value = state.password,
                     onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
                     hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -125,12 +125,16 @@ private fun TaskyLoginContent(
                         IconButton(onClick = { onAction(LoginAction.PasswordVisibilityChanged) }) {
                             Icon(
                                 imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (state.passwordVisible) "Hide password" else "Show password"
+                                contentDescription = if (state.passwordVisible) {
+                                    stringResource(R.string.content_description_hide_password)
+                                } else {
+                                    stringResource(R.string.content_description_show_password)
+                                }
                             )
                         }
                     }
                 )
-                LoginButton(
+                TaskyButton(
                     text = "LOG IN",
                     onClick = { onAction(LoginAction.LoginClicked) },
                     modifier = Modifier
@@ -161,8 +165,8 @@ private fun TaskyLoginContent(
 }
 
 @Composable
-fun LoginInputField(
-    text: String,
+fun TaskyTextInputField(
+    hint: String,
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -171,7 +175,7 @@ fun LoginInputField(
 ) {
     OutlinedTextField(
         value = value,
-        label = { Text(text) },
+        label = { Text(hint) },
         maxLines = 1,
         visualTransformation = hidePassword ?: VisualTransformation.None,
         onValueChange = onValueChange,
@@ -181,7 +185,7 @@ fun LoginInputField(
 }
 
 @Composable
-fun LoginButton(
+fun TaskyButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier

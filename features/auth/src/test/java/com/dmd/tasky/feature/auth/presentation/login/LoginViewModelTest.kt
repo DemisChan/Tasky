@@ -1,6 +1,8 @@
 package com.dmd.tasky.feature.auth.presentation.login
 
+import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.feature.auth.domain.AuthRepository
+import com.dmd.tasky.feature.auth.domain.model.AuthError
 import com.dmd.tasky.feature.auth.domain.model.LoginResult
 import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
 import io.mockk.coEvery
@@ -46,7 +48,7 @@ class LoginViewModelTest {
     @Test
     fun `login success should update state correctly`() = runTest {
         val token = "token"
-        coEvery { authRepository.login(any(), any()) } returns LoginResult.Success(token)
+        coEvery { authRepository.login(any(), any()) } returns Result.Success(token)
 
         loginViewModel.onAction(LoginAction.LoginClicked)
 
@@ -57,8 +59,13 @@ class LoginViewModelTest {
 
     @Test
     fun `login error should update state correctly`() = runTest {
-        val errorMessage = "error"
-        coEvery { authRepository.login(any(), any()) } returns LoginResult.Error(errorMessage)
+        val errorMessage = "Unknown network error"
+        coEvery {
+            authRepository.login(
+                any(),
+                any()
+            )
+        } returns Result.Error(AuthError.Network.UNKNOWN)
 
         loginViewModel.onAction(LoginAction.LoginClicked)
 
@@ -68,11 +75,16 @@ class LoginViewModelTest {
 
     @Test
     fun `login with invalid credentials should update state correctly`() = runTest {
-        coEvery { authRepository.login(any(), any()) } returns LoginResult.InvalidCredentials
+        coEvery {
+            authRepository.login(
+                any(),
+                any()
+            )
+        } returns Result.Error(AuthError.Auth.INVALID_CREDENTIALS)
 
         loginViewModel.onAction(LoginAction.LoginClicked)
 
         Assert.assertEquals(false, loginViewModel.state.isLoading)
-        Assert.assertEquals("Invalid credentials", loginViewModel.state.error)
+        Assert.assertEquals("Invalid email or password", loginViewModel.state.error)
     }
 }
