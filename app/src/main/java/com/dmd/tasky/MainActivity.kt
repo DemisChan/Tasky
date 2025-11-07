@@ -20,9 +20,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TaskyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    TaskyRegisterScreen(
-                        modifier = Modifier.padding(innerPadding),
-                    )
+
                 }
             }
         }

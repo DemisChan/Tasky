@@ -40,9 +40,7 @@ class LoginViewModel @Inject constructor(
             is LoginAction.LoginClicked -> {
                 login()
             }
-
-            is LoginAction.SignUpClicked -> {
-            }
+            is LoginAction.SignUpClicked -> {}
         }
     }
 

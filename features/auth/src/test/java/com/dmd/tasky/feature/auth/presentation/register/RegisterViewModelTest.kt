@@ -120,4 +120,18 @@ class RegisterViewModelTest {
         assertEquals(null, registerViewModel.state.error)
         assertEquals(true, registerViewModel.state.registrationSuccess)
     }
+
+    @Test
+    fun `RegisterClicked validation failed scenario`() = runTest {
+        authRepository.registerResult = Result.Error(AuthError.Auth.VALIDATION_FAILED)
+
+        registerViewModel.onAction(RegisterAction.FullNameChanged("Jo"))
+        registerViewModel.onAction(RegisterAction.EmailChanged("test@test.com"))
+        registerViewModel.onAction(RegisterAction.PasswordChanged("short"))
+        registerViewModel.onAction(RegisterAction.RegisterClicked)
+        advanceUntilIdle()
+
+        assertEquals(false, registerViewModel.state.registrationSuccess)
+        assertEquals("Validation failed", registerViewModel.state.error)
+    }
 }

@@ -42,6 +42,7 @@ import com.dmd.tasky.feature.auth.presentation.login.annotatedString
 
 @Composable
 fun TaskyRegisterScreen(
+    onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RegisterViewModel = hiltViewModel(),
 ) {
@@ -49,7 +50,12 @@ fun TaskyRegisterScreen(
 
     TaskyRegisterContent(
         state = registerUiState,
-        onAction = viewModel::onAction,
+        onAction = { action ->
+            when (action) {
+                is RegisterAction.LoginClicked -> onNavigateToLogin()
+                else -> viewModel.onAction(action)
+            }
+        },
         modifier = modifier
     )
 }
@@ -145,7 +151,7 @@ private fun TaskyRegisterContent(
                     )
                     BasicText(
                         text = annotatedString(
-                            onAction(RegisterAction.LoginClicked),
+                            onAction = { onAction(RegisterAction.LoginClicked) },
                             state.javaClass.name
                         ),
                         style = MaterialTheme.typography.labelSmall,
@@ -193,19 +199,19 @@ fun TaskyRegisterContentPreview() {
         onAction = { action ->
             when (action) {
                 is RegisterAction.FullNameChanged -> {
-                    state = state.copy(fullName = action.fullName)
+                    state.copy(fullName = action.fullName)
                 }
 
                 is RegisterAction.EmailChanged -> {
-                    state = state.copy(email = action.email)
+                    state.copy(email = action.email)
                 }
 
                 is RegisterAction.PasswordChanged -> {
-                    state = state.copy(password = action.password)
+                    state.copy(password = action.password)
                 }
 
                 is RegisterAction.PasswordVisibilityChanged -> {
-                    state = state.copy(passwordVisible = !state.passwordVisible)
+                    state.copy(passwordVisible = !state.passwordVisible)
                 }
 
                 is RegisterAction.RegisterClicked -> {}

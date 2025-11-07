@@ -43,10 +43,7 @@ class RegisterViewModel @Inject constructor(
             is RegisterAction.RegisterClicked -> {
                 register()
             }
-
-            is RegisterAction.LoginClicked -> {
-                TODO("Navigate to login")
-            }
+            is RegisterAction.LoginClicked -> {}
         }
     }
 

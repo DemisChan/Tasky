@@ -44,17 +44,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.feature.auth.R
+import com.dmd.tasky.feature.auth.presentation.register.RegisterAction
 import com.dmd.tasky.feature.auth.presentation.register.RegisterUiState
 
 @Composable
 fun TaskyLoginScreen(
+    onNavigateToRegister: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val loginUiState = viewModel.state
     TaskyLoginContent(
         state = loginUiState,
-        onAction = viewModel::onAction,
+        onAction = { action ->
+            when (action) {
+                is LoginAction.SignUpClicked -> onNavigateToRegister()
+                else -> viewModel.onAction(action)
+            }
+        },
         modifier = modifier
     )
 }
@@ -148,7 +155,7 @@ private fun TaskyLoginContent(
                 )
                 BasicText(
                     text = annotatedString(
-                        onAction(LoginAction.SignUpClicked),
+                        onAction = { onAction(LoginAction.SignUpClicked) },
                         state.javaClass.name
                     ),
                     style = MaterialTheme.typography.labelSmall,
@@ -208,9 +215,9 @@ fun TaskyButton(
 
 }
 
-fun annotatedString(onAction: Unit, state: String) = buildAnnotatedString {
+fun annotatedString(onAction: () -> Unit, state: String) = buildAnnotatedString {
     if (state == LoginUiState::class.qualifiedName) {
-        append("DON’T HAVE AN ACCOUNT? ")
+        append("DON'T HAVE AN ACCOUNT? ")
     }
     if (state == RegisterUiState::class.qualifiedName) {
         append("ALREADY HAVE AN ACCOUNT? ")
@@ -219,7 +226,7 @@ fun annotatedString(onAction: Unit, state: String) = buildAnnotatedString {
 
     val signUp = LinkAnnotation.Clickable(
         tag = "SIGN UP",
-        linkInteractionListener = { onAction }
+        linkInteractionListener = { onAction() }
     )
     pushLink(signUp)
 
@@ -249,15 +256,15 @@ fun TaskyLoginContentPreview() {
         onAction = { action ->
             when (action) {
                 is LoginAction.EmailChanged -> {
-                    state = state.copy(email = action.email)
+                    state.copy(email = action.email)
                 }
 
                 is LoginAction.PasswordChanged -> {
-                    state = state.copy(password = action.password)
+                    state.copy(password = action.password)
                 }
 
                 is LoginAction.PasswordVisibilityChanged -> {
-                    state = state.copy(passwordVisible = !state.passwordVisible)
+                    state.copy(passwordVisible = !state.passwordVisible)
                 }
 
                 is LoginAction.LoginClicked -> {}
