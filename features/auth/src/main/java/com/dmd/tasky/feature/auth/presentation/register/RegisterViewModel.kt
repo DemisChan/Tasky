@@ -5,10 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.core.domain.util.onError
 import com.dmd.tasky.core.domain.util.onSuccess
 import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.domain.model.toUiMessage
+import com.dmd.tasky.feature.auth.presentation.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -69,7 +70,7 @@ class RegisterViewModel @Inject constructor(
                 }
                 .onError { error ->
                     Timber.e("Registration error: $error")
-                    state = state.copy(error = error.toUiMessage(), isLoading = false)
+                    state = state.copy(error = error.toUiText(), isLoading = false)
                 }
         }
     }
@@ -81,6 +82,6 @@ data class RegisterUiState(
     val password: String = "",
     var passwordVisible: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
     val registrationSuccess: Boolean = false
 )

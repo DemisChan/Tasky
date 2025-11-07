@@ -32,9 +32,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.feature.auth.R
-import com.dmd.tasky.feature.auth.presentation.login.LoginButton
-import com.dmd.tasky.feature.auth.presentation.login.LoginInputField
+import com.dmd.tasky.feature.auth.presentation.asString
+import com.dmd.tasky.feature.auth.presentation.login.TaskyButton
+import com.dmd.tasky.feature.auth.presentation.login.TaskyTextInputField
 import com.dmd.tasky.feature.auth.presentation.login.annotatedString
 
 
@@ -66,14 +68,13 @@ private fun TaskyRegisterContent(
                 .padding(paddingValues)
                 .background(color = Color.Black),
             horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = stringResource(R.string.register_greeting),
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
-                    .padding(top = 40.dp, bottom = 40.dp)
+                    .padding(vertical = 40.dp)
                     .align(Alignment.CenterHorizontally),
                 color = Color.White
             )
@@ -91,8 +92,8 @@ private fun TaskyRegisterContent(
                         .fillMaxSize()
                         .padding(horizontal = 16.dp)
                 ) {
-                    LoginInputField(
-                        text = "Full Name",
+                    TaskyTextInputField(
+                        hint = "Full Name",
                         value = state.fullName,
                         onValueChange = { onAction(RegisterAction.FullNameChanged(it)) },
                         modifier = Modifier
@@ -103,8 +104,8 @@ private fun TaskyRegisterContent(
                         hidePassword = null,
                         trailingIcon = null
                     )
-                    LoginInputField(
-                        text = "Email",
+                    TaskyTextInputField(
+                        hint = "Email",
                         value = state.email,
                         onValueChange = { onAction(RegisterAction.EmailChanged(it)) },
                         modifier = Modifier
@@ -113,8 +114,8 @@ private fun TaskyRegisterContent(
                         trailingIcon = null
                     )
 
-                    LoginInputField(
-                        text = "Password",
+                    TaskyTextInputField(
+                        hint = "Password",
                         value = state.password,
                         onValueChange = { onAction(RegisterAction.PasswordChanged(it)) },
                         hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -130,7 +131,7 @@ private fun TaskyRegisterContent(
                         }
                     )
                     // TODO(Add enabled flag to button)
-                    LoginButton(
+                    TaskyButton(
                         text = "GET STARTED",
                         onClick = { onAction(RegisterAction.RegisterClicked) },
                         modifier = Modifier
@@ -157,9 +158,9 @@ private fun TaskyRegisterContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        if (state.error != null) {
+                        state.error?.let { error ->
                             Text(
-                                text = "Error: ${state.error}",
+                                text = error.asString(),
                                 color = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
@@ -214,3 +215,22 @@ fun TaskyRegisterContentPreview() {
         }
     )
 }
+
+@Preview(name = "Register Error State", showBackground = false, backgroundColor = 0XFF16161C)
+@Composable
+fun TaskyRegisterErrorPreview() {
+    val errorState = RegisterUiState(
+        fullName = "John Doe",
+        email = "john@example.com",
+        password = "secret",
+        passwordVisible = false,
+        error = UiText.StringResource(R.string.error_email_already_exists),
+        registrationSuccess = false
+    )
+
+    TaskyRegisterContent(
+        state = errorState,
+        onAction = {}
+    )
+}
+

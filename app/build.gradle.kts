@@ -44,7 +44,7 @@ android {
 
 dependencies {
 
-    implementation(project(":features:auth"))
+    implementation(projects.features.auth)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -8,7 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.dmd.tasky.core.domain.util.onError
 import com.dmd.tasky.core.domain.util.onSuccess
 import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.domain.model.toUiMessage
+import com.dmd.tasky.core.domain.util.UiText
+import com.dmd.tasky.feature.auth.presentation.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -57,7 +58,7 @@ class LoginViewModel @Inject constructor(
                 }
                 .onError { error ->
                     Timber.e("Login failed: $error")
-                    state = state.copy(isLoading = false, error = error.toUiMessage())
+                    state = state.copy(isLoading = false, error = error.toUiText())
                 }
         }
     }
@@ -68,5 +69,5 @@ data class LoginUiState(
     val password: String = "",
     val isLoading: Boolean = false,
     var passwordVisible: Boolean = false,
-    val error: String? = null
+    val error: UiText? = null
 )
