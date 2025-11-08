@@ -26,11 +26,11 @@ class LoginViewModel @Inject constructor(
     fun onAction(action: LoginAction) {
         when (action) {
             is LoginAction.EmailChanged -> {
-                state = state.copy(email = action.email)
+                state = state.copy(email = action.email, error = null)
             }
 
             is LoginAction.PasswordChanged -> {
-                state = state.copy(password = action.password)
+                state = state.copy(password = action.password, error = null)
             }
 
             is LoginAction.PasswordVisibilityChanged -> {
@@ -51,12 +51,12 @@ class LoginViewModel @Inject constructor(
             authRepository.login(state.email, state.password)
                 .onSuccess { token ->
                     Timber.d("Login successful")
-                    state = state.copy(isLoading = false, error = null)
+                    state = state.copy(isLoading = false, error = null, loginSuccess = true)
                     // TODO: Save token, navigate to next screen
                 }
                 .onError { error ->
                     Timber.e("Login failed: $error")
-                    state = state.copy(isLoading = false, error = error.toUiText())
+                    state = state.copy(isLoading = false, error = error.toUiText(), loginSuccess = false)
                 }
         }
     }
@@ -67,5 +67,6 @@ data class LoginUiState(
     val password: String = "",
     val isLoading: Boolean = false,
     var passwordVisible: Boolean = false,
-    val error: UiText? = null
+    val error: UiText? = null,
+    val loginSuccess: Boolean = false
 )

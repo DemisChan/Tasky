@@ -2,6 +2,8 @@ package com.dmd.tasky.feature.auth.presentation.register
 
 import FakeAuthRepository
 import com.dmd.tasky.core.domain.util.Result
+import com.dmd.tasky.core.domain.util.UiText
+import com.dmd.tasky.feature.auth.R
 import com.dmd.tasky.feature.auth.domain.model.AuthError
 import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
 import junit.framework.TestCase.assertEquals
@@ -82,7 +84,7 @@ class RegisterViewModelTest {
         assertEquals(false, registerViewModel.state.registrationSuccess)
         assertEquals(false, registerViewModel.state.isLoading)
         assertEquals(
-            "User with this email already exists",
+            UiText.StringResource(R.string.error_email_already_exists),
             registerViewModel.state.error
         )
     }
@@ -102,7 +104,10 @@ class RegisterViewModelTest {
 
         assertEquals(false, registerViewModel.state.registrationSuccess)
         assertEquals(false, registerViewModel.state.isLoading)
-        assertEquals("Unknown network error", registerViewModel.state.error)
+        assertEquals(
+            UiText.StringResource(R.string.unknown_network_error),
+            registerViewModel.state.error
+        )
     }
 
     @Test
@@ -111,7 +116,10 @@ class RegisterViewModelTest {
         registerViewModel.onAction(RegisterAction.RegisterClicked)
         advanceUntilIdle()
 
-        assertEquals("Unknown network error", registerViewModel.state.error)
+        assertEquals(
+            UiText.StringResource(R.string.unknown_network_error),
+            registerViewModel.state.error
+        )
 
         authRepository.registerResult = Result.Success(Unit)
         registerViewModel.onAction(RegisterAction.RegisterClicked)
@@ -132,6 +140,9 @@ class RegisterViewModelTest {
         advanceUntilIdle()
 
         assertEquals(false, registerViewModel.state.registrationSuccess)
-        assertEquals("Validation failed", registerViewModel.state.error)
+        assertEquals(
+            UiText.StringResource(R.string.error_validation_failed),
+            registerViewModel.state.error
+        )
     }
 }

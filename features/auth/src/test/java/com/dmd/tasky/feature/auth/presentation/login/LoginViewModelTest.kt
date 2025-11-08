@@ -1,9 +1,10 @@
 package com.dmd.tasky.feature.auth.presentation.login
 
 import com.dmd.tasky.core.domain.util.Result
+import com.dmd.tasky.core.domain.util.UiText
+import com.dmd.tasky.feature.auth.R
 import com.dmd.tasky.feature.auth.domain.AuthRepository
 import com.dmd.tasky.feature.auth.domain.model.AuthError
-import com.dmd.tasky.feature.auth.domain.model.LoginResult
 import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -59,7 +60,6 @@ class LoginViewModelTest {
 
     @Test
     fun `login error should update state correctly`() = runTest {
-        val errorMessage = "Unknown network error"
         coEvery {
             authRepository.login(
                 any(),
@@ -68,9 +68,10 @@ class LoginViewModelTest {
         } returns Result.Error(AuthError.Network.UNKNOWN)
 
         loginViewModel.onAction(LoginAction.LoginClicked)
+        val expectedError = UiText.StringResource(R.string.unknown_network_error)
 
         Assert.assertEquals(false, loginViewModel.state.isLoading)
-        Assert.assertEquals(errorMessage, loginViewModel.state.error)
+        Assert.assertEquals(expectedError, loginViewModel.state.error)
     }
 
     @Test
@@ -83,8 +84,9 @@ class LoginViewModelTest {
         } returns Result.Error(AuthError.Auth.INVALID_CREDENTIALS)
 
         loginViewModel.onAction(LoginAction.LoginClicked)
+        val expectedError = UiText.StringResource(R.string.error_invalid_credentials)
 
         Assert.assertEquals(false, loginViewModel.state.isLoading)
-        Assert.assertEquals("Invalid email or password", loginViewModel.state.error)
+        Assert.assertEquals(expectedError, loginViewModel.state.error)
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.dmd.tasky.feature.auth.presentation.agenda.AgendaScreen
 import com.dmd.tasky.feature.auth.presentation.login.TaskyLoginScreen
 import com.dmd.tasky.feature.auth.presentation.register.TaskyRegisterScreen
 
@@ -32,9 +33,20 @@ fun TaskyNavHost(modifier: Modifier = Modifier) {
                 onNavigateToRegister = {
                     navController.navigate("register")
                 },
+                onLoginSuccess = {
+                    navController.navigate("agenda") {
+                        popUpTo("login") {
+                            inclusive = true
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxSize()
             )
-
+        }
+        composable("agenda"){
+            AgendaScreen(
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }

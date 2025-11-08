@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.dmd.tasky.feature.auth.presentation.register.TaskyRegisterScreen
+import com.dmd.tasky.ui.navigation.TaskyNavHost
 import com.dmd.tasky.ui.theme.TaskyTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,7 +21,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             TaskyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
+                    TaskyNavHost(
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
             }
         }

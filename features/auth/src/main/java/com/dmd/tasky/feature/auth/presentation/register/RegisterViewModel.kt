@@ -25,15 +25,15 @@ class RegisterViewModel @Inject constructor(
     fun onAction(action: RegisterAction) {
         when (action) {
             is RegisterAction.FullNameChanged -> {
-                state = state.copy(fullName = action.fullName)
+                state = state.copy(fullName = action.fullName, error = null)
             }
 
             is RegisterAction.EmailChanged -> {
-                state = state.copy(email = action.email)
+                state = state.copy(email = action.email, error = null)
             }
 
             is RegisterAction.PasswordChanged -> {
-                state = state.copy(password = action.password)
+                state = state.copy(password = action.password, error = null)
             }
 
             is RegisterAction.PasswordVisibilityChanged -> {

@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,16 +45,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.feature.auth.R
+import com.dmd.tasky.feature.auth.presentation.asString
 import com.dmd.tasky.feature.auth.presentation.register.RegisterAction
 import com.dmd.tasky.feature.auth.presentation.register.RegisterUiState
 
 @Composable
 fun TaskyLoginScreen(
     onNavigateToRegister: () -> Unit,
+    onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val loginUiState = viewModel.state
+
+    LaunchedEffect(loginUiState.loginSuccess) {
+        if (loginUiState.loginSuccess) {
+            onLoginSuccess()
+        }
+    }
     TaskyLoginContent(
         state = loginUiState,
         onAction = { action ->
@@ -101,69 +110,90 @@ private fun TaskyLoginContent(
                     topEnd = 25.dp,
                 ),
             ) {
-                TaskyTextInputField(
-                    hint = "Email",
-                    value = state.email,
-                    onValueChange = { onAction(LoginAction.EmailChanged(it)) },
+                Column(
                     modifier = Modifier
-                        .padding(
-                            top = 28.dp,
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    hidePassword = null,
-                    trailingIcon = null
-                )
-                TaskyTextInputField(
-                    hint = "Password",
-                    value = state.password,
-                    onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
-                    hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier
-                        .padding(
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    trailingIcon = {
-                        IconButton(onClick = { onAction(LoginAction.PasswordVisibilityChanged) }) {
-                            Icon(
-                                imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (state.passwordVisible) {
-                                    stringResource(R.string.content_description_hide_password)
-                                } else {
-                                    stringResource(R.string.content_description_show_password)
-                                }
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    TaskyTextInputField(
+                        hint = "Email",
+                        value = state.email,
+                        onValueChange = { onAction(LoginAction.EmailChanged(it)) },
+                        modifier = Modifier
+                            .padding(
+                                top = 28.dp,
+                            )
+                            .fillMaxWidth(),
+                        hidePassword = null,
+                        trailingIcon = null
+                    )
+                    TaskyTextInputField(
+                        hint = "Password",
+                        value = state.password,
+                        onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
+                        hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally),
+                        trailingIcon = {
+                            IconButton(onClick = { onAction(LoginAction.PasswordVisibilityChanged) }) {
+                                Icon(
+                                    imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = if (state.passwordVisible) {
+                                        stringResource(R.string.content_description_hide_password)
+                                    } else {
+                                        stringResource(R.string.content_description_show_password)
+                                    }
+                                )
+                            }
+                        }
+                    )
+                    TaskyButton(
+                        text = "LOG IN",
+                        onClick = { onAction(LoginAction.LoginClicked) },
+                        modifier = Modifier
+                            .padding(
+                                top = 32.dp,
+                                start = 16.dp,
+                                end = 16.dp
+                            )
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    BasicText(
+                        text = annotatedString(
+                            onAction = { onAction(LoginAction.SignUpClicked) },
+                            state.javaClass.name
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .padding(top = 20.dp)
+                            .align(Alignment.CenterHorizontally),
+                    )
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        state.error?.let { error ->
+                            Text(
+                                text = error.asString(),
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(bottom = 16.dp)
                             )
                         }
-                    }
-                )
-                TaskyButton(
-                    text = "LOG IN",
-                    onClick = { onAction(LoginAction.LoginClicked) },
-                    modifier = Modifier
-                        .padding(
-                            top = 32.dp,
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                )
-                BasicText(
-                    text = annotatedString(
-                        onAction = { onAction(LoginAction.SignUpClicked) },
-                        state.javaClass.name
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                        .align(Alignment.CenterHorizontally),
-                )
 
+                        if (state.loginSuccess) {
+                            Text(
+                                text = "Login successful!",
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                        }
+
+                    }
+
+                }
             }
 
         }
