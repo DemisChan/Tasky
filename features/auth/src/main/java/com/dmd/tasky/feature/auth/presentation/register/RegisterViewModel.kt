@@ -43,6 +43,7 @@ class RegisterViewModel @Inject constructor(
             is RegisterAction.RegisterClicked -> {
                 register()
             }
+
             is RegisterAction.LoginClicked -> {}
         }
     }
