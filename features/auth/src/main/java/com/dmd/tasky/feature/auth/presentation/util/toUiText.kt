@@ -1,12 +1,12 @@
-package com.dmd.tasky.feature.auth.presentation
+package com.dmd.tasky.feature.auth.presentation.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.core.domain.util.UiText.DynamicString
 import com.dmd.tasky.core.domain.util.UiText.StringResource
-import com.dmd.tasky.feature.auth.domain.model.AuthError
 import com.dmd.tasky.feature.auth.R
+import com.dmd.tasky.feature.auth.domain.model.AuthError
 
 
 fun AuthError.toUiText(): UiText {
@@ -26,6 +26,6 @@ fun AuthError.toUiText(): UiText {
 fun UiText.asString(): String {
     return when (this) {
         is DynamicString -> value
-        is StringResource -> stringResource(resId, *args)
+        is StringResource -> stringResource(resId, *args.toTypedArray())
     }
 }
