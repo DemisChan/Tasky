@@ -1,5 +1,6 @@
 package com.dmd.tasky.feature.auth.presentation.login
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -45,9 +46,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.feature.auth.R
-import com.dmd.tasky.feature.auth.presentation.asString
-import com.dmd.tasky.feature.auth.presentation.register.RegisterAction
 import com.dmd.tasky.feature.auth.presentation.register.RegisterUiState
+import com.dmd.tasky.feature.auth.presentation.util.ObserveAsEvents
+import com.dmd.tasky.feature.auth.presentation.util.asString
 
 @Composable
 fun TaskyLoginScreen(
@@ -57,12 +58,25 @@ fun TaskyLoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val loginUiState = viewModel.state
+    val context = LocalContext.current
 
-    LaunchedEffect(loginUiState.loginSuccess) {
-        if (loginUiState.loginSuccess) {
-            onLoginSuccess()
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is LoginEvent.Error -> {
+                Toast.makeText(
+                    context, event.error.asString(context = context), Toast.LENGTH_LONG
+                ).show()
+            }
+
+            is LoginEvent.Success -> {
+                Toast.makeText(
+                    context, "Login successful", Toast.LENGTH_LONG
+                ).show()
+                onLoginSuccess()
+            }
         }
     }
+
     TaskyLoginContent(
         state = loginUiState,
         onAction = { action ->
@@ -179,14 +193,6 @@ private fun TaskyLoginContent(
                             Text(
                                 text = error.asString(),
                                 color = MaterialTheme.colorScheme.error,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
-                        }
-
-                        if (state.loginSuccess) {
-                            Text(
-                                text = "Login successful!",
-                                color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
                         }

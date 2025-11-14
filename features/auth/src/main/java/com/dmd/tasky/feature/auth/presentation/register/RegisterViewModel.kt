@@ -9,8 +9,11 @@ import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.core.domain.util.onError
 import com.dmd.tasky.core.domain.util.onSuccess
 import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.presentation.toUiText
+import com.dmd.tasky.feature.auth.presentation.login.LoginEvent
+import com.dmd.tasky.feature.auth.presentation.util.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,7 +24,8 @@ class RegisterViewModel @Inject constructor(
 ) : ViewModel() {
     var state by mutableStateOf(RegisterUiState())
         private set
-
+    private val eventChannel = Channel<RegisterEvent>()
+    val events = eventChannel.receiveAsFlow()
     fun onAction(action: RegisterAction) {
         when (action) {
             is RegisterAction.FullNameChanged -> {
@@ -64,11 +68,13 @@ class RegisterViewModel @Inject constructor(
             )
                 .onSuccess {
                     Timber.d("Registration successful in ViewModel!")
-                    state = state.copy(registrationSuccess = true, isLoading = false)
+                    state = state.copy(isLoading = false)
+                    eventChannel.send(RegisterEvent.Success)
                 }
                 .onError { error ->
                     Timber.e("Registration error: $error")
                     state = state.copy(error = error.toUiText(), isLoading = false)
+                    eventChannel.send(RegisterEvent.Error(error.toUiText()))
                 }
         }
     }
@@ -81,5 +87,4 @@ data class RegisterUiState(
     var passwordVisible: Boolean = false,
     val isLoading: Boolean = false,
     val error: UiText? = null,
-    val registrationSuccess: Boolean = false
 )

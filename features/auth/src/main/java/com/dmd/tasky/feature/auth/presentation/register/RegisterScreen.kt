@@ -1,5 +1,6 @@
 package com.dmd.tasky.feature.auth.presentation.register
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -34,10 +36,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.feature.auth.R
-import com.dmd.tasky.feature.auth.presentation.asString
+import com.dmd.tasky.feature.auth.presentation.login.LoginEvent
+import com.dmd.tasky.feature.auth.presentation.util.asString
 import com.dmd.tasky.feature.auth.presentation.login.TaskyButton
 import com.dmd.tasky.feature.auth.presentation.login.TaskyTextInputField
 import com.dmd.tasky.feature.auth.presentation.login.annotatedString
+import com.dmd.tasky.feature.auth.presentation.util.ObserveAsEvents
 
 
 @Composable
@@ -47,6 +51,23 @@ fun TaskyRegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
 ) {
     val registerUiState = viewModel.state
+    val context = LocalContext.current
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is RegisterEvent.Error -> {
+                Toast.makeText(
+                    context, event.error.asString(context = context), Toast.LENGTH_LONG
+                ).show()
+            }
+
+            is RegisterEvent.Success -> {
+                Toast.makeText(
+                    context, "Registration successful", Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
 
     TaskyRegisterContent(
         state = registerUiState,
@@ -171,15 +192,6 @@ private fun TaskyRegisterContent(
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
                         }
-
-                        if (state.registrationSuccess) {
-                            Text(
-                                text = "Registration Successful!",
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
-                        }
-
                     }
                 }
             }
@@ -231,7 +243,6 @@ fun TaskyRegisterErrorPreview() {
         password = "secret",
         passwordVisible = false,
         error = UiText.StringResource(R.string.error_email_already_exists),
-        registrationSuccess = false
     )
 
     TaskyRegisterContent(
