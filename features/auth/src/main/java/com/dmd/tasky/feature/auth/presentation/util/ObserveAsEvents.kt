@@ -20,7 +20,9 @@ fun <T> ObserveAsEvents(
     LaunchedEffect(flow, lifecycleOwner.lifecycle, key1, key2) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             withContext(Dispatchers.Main.immediate) {
-                flow.collect(onEvent)
+                flow.collect { value ->
+                    onEvent(value)
+                }
             }
         }
     }
