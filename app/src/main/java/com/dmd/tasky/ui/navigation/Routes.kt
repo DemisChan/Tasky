@@ -2,24 +2,23 @@ package com.dmd.tasky.ui.navigation
 
 import kotlinx.serialization.Serializable
 
-
-@Serializable
-data object AuthGraph
-
-@Serializable
-data object AgendaGraph
-
-sealed interface AuthRoute {
+sealed interface AuthGraphRoutes {
     @Serializable
-    data object Login : AuthRoute
+    data object AuthGraph : AuthGraphRoutes
 
     @Serializable
-    data object Register : AuthRoute
+    data object Login : AuthGraphRoutes
+
+    @Serializable
+    data object Register : AuthGraphRoutes
 }
 
-sealed interface AgendaRoute {
+sealed interface AgendaGraphRoutes {
 
     @Serializable
-    data object Agenda : AgendaRoute
+    data object AgendaGraph : AgendaGraphRoutes
+
+    @Serializable
+    data object Agenda : AgendaGraphRoutes
 
 }

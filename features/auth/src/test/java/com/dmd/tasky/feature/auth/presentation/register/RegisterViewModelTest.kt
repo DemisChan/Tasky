@@ -1,11 +1,13 @@
 package com.dmd.tasky.feature.auth.presentation.register
 
 import FakeAuthRepository
+import app.cash.turbine.test
 import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.feature.auth.R
 import com.dmd.tasky.feature.auth.domain.model.AuthError
 import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
+import com.dmd.tasky.feature.auth.presentation.util.toUiText
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -58,17 +60,21 @@ class RegisterViewModelTest {
     @Test
     fun `RegisterClicked success scenario`() = runTest {
         authRepository.registerResult = Result.Success(Unit)
+
         registerViewModel.onAction(RegisterAction.FullNameChanged("Test"))
         registerViewModel.onAction(RegisterAction.EmailChanged("Test@test.com"))
         registerViewModel.onAction(RegisterAction.PasswordChanged("Test"))
+        registerViewModel.events.test {
+            registerViewModel.onAction(RegisterAction.RegisterClicked)
 
-        registerViewModel.onAction(RegisterAction.RegisterClicked)
-        advanceUntilIdle()
-
-        assertEquals(true, registerViewModel.state.registrationSuccess)
-        assertEquals(false, registerViewModel.state.isLoading)
-        assertEquals(null, registerViewModel.state.error)
-
+            assertEquals(true, registerViewModel.state.isLoading)
+            assertEquals(null, registerViewModel.state.error)
+            assertEquals(
+                "A success event should be emitted",
+                RegisterEvent.Success,
+                awaitItem()
+            )
+        }
     }
 
 
@@ -79,14 +85,19 @@ class RegisterViewModelTest {
         registerViewModel.onAction(RegisterAction.EmailChanged("Test@test.com"))
         registerViewModel.onAction(RegisterAction.PasswordChanged("Test"))
 
-        registerViewModel.onAction(RegisterAction.RegisterClicked)
+        registerViewModel.events.test {
+            registerViewModel.onAction(RegisterAction.RegisterClicked)
+            assertEquals(true, registerViewModel.state.isLoading)
+            assertEquals(
+                "An error event should be emitted",
+                RegisterEvent.Error(AuthError.Auth.USER_ALREADY_EXISTS.toUiText()),
+                awaitItem()
+            )
+        }
         advanceUntilIdle()
-        assertEquals(false, registerViewModel.state.registrationSuccess)
         assertEquals(false, registerViewModel.state.isLoading)
-        assertEquals(
-            UiText.StringResource(R.string.error_email_already_exists),
-            registerViewModel.state.error
-        )
+        assertEquals(AuthError.Auth.USER_ALREADY_EXISTS.toUiText(), registerViewModel.state.error)
+
     }
 
     @Test
@@ -98,51 +109,69 @@ class RegisterViewModelTest {
         registerViewModel.onAction(RegisterAction.EmailChanged("Test@test.com"))
         registerViewModel.onAction(RegisterAction.PasswordChanged("Test"))
 
-        registerViewModel.onAction(RegisterAction.RegisterClicked)
-        advanceUntilIdle()
 
-
-        assertEquals(false, registerViewModel.state.registrationSuccess)
-        assertEquals(false, registerViewModel.state.isLoading)
-        assertEquals(
-            UiText.StringResource(R.string.unknown_network_error),
-            registerViewModel.state.error
-        )
+        registerViewModel.events.test {
+            registerViewModel.onAction(RegisterAction.RegisterClicked)
+            assertEquals(true, registerViewModel.state.isLoading)
+            assertEquals(
+                "An error event should be emitted",
+                RegisterEvent.Error(AuthError.Network.UNKNOWN.toUiText()),
+                awaitItem()
+            )
+            advanceUntilIdle()
+            assertEquals(false, registerViewModel.state.isLoading)
+            assertEquals(AuthError.Network.UNKNOWN.toUiText(), registerViewModel.state.error)
+            expectNoEvents()
+        }
     }
 
     @Test
     fun `RegisterClicked clears previous error`() = runTest {
         authRepository.registerResult = Result.Error(AuthError.Network.UNKNOWN)
-        registerViewModel.onAction(RegisterAction.RegisterClicked)
-        advanceUntilIdle()
 
-        assertEquals(
-            UiText.StringResource(R.string.unknown_network_error),
-            registerViewModel.state.error
-        )
 
-        authRepository.registerResult = Result.Success(Unit)
-        registerViewModel.onAction(RegisterAction.RegisterClicked)
-        advanceUntilIdle()
-
-        assertEquals(null, registerViewModel.state.error)
-        assertEquals(true, registerViewModel.state.registrationSuccess)
+        registerViewModel.events.test {
+            registerViewModel.onAction(RegisterAction.RegisterClicked)
+            advanceUntilIdle()
+            assertEquals(false, registerViewModel.state.isLoading)
+            assertEquals(
+                "An error event should be emitted",
+                RegisterEvent.Error(AuthError.Network.UNKNOWN.toUiText()),
+                awaitItem()
+            )
+            authRepository.registerResult = Result.Success(Unit)
+            registerViewModel.onAction(RegisterAction.RegisterClicked)
+            advanceUntilIdle()
+            assertEquals(
+                "A success event should be emitted",
+                RegisterEvent.Success,
+                awaitItem()
+            )
+            assertEquals(null, registerViewModel.state.error)
+            assertEquals(false, registerViewModel.state.isLoading)
+        }
     }
 
     @Test
     fun `RegisterClicked validation failed scenario`() = runTest {
         authRepository.registerResult = Result.Error(AuthError.Auth.VALIDATION_FAILED)
 
-        registerViewModel.onAction(RegisterAction.FullNameChanged("Jo"))
-        registerViewModel.onAction(RegisterAction.EmailChanged("test@test.com"))
-        registerViewModel.onAction(RegisterAction.PasswordChanged("short"))
-        registerViewModel.onAction(RegisterAction.RegisterClicked)
-        advanceUntilIdle()
+        registerViewModel.events.test {
+            registerViewModel.onAction(RegisterAction.FullNameChanged("Jo"))
+            registerViewModel.onAction(RegisterAction.EmailChanged("test@test.com"))
+            registerViewModel.onAction(RegisterAction.PasswordChanged("short"))
+            registerViewModel.onAction(RegisterAction.RegisterClicked)
+            advanceUntilIdle()
 
-        assertEquals(false, registerViewModel.state.registrationSuccess)
-        assertEquals(
-            UiText.StringResource(R.string.error_validation_failed),
-            registerViewModel.state.error
-        )
+            assertEquals(
+                "An error event should be emitted",
+                RegisterEvent.Error(AuthError.Auth.VALIDATION_FAILED.toUiText()),
+                awaitItem()
+            )
+            assertEquals(
+                UiText.StringResource(R.string.error_validation_failed),
+                registerViewModel.state.error
+            )
+        }
     }
 }

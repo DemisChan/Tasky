@@ -16,29 +16,29 @@ fun TaskyNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = AuthGraph,
+        startDestination = AuthGraphRoutes.AuthGraph,
         modifier = modifier
     ) {
-        navigation<AuthGraph>(
-            startDestination = AuthRoute.Login
+        navigation<AuthGraphRoutes.AuthGraph>(
+            startDestination = AuthGraphRoutes.Login
         ) {
-            composable<AuthRoute.Register> {
+            composable<AuthGraphRoutes.Register> {
                 TaskyRegisterScreen(
                     onNavigateToLogin = {
-                        navController.navigate(AuthRoute.Login)
+                        navController.navigate(AuthGraphRoutes.Login)
                     },
                     modifier = Modifier.fillMaxSize()
                 )
 
             }
-            composable<AuthRoute.Login> {
+            composable<AuthGraphRoutes.Login> {
                 TaskyLoginScreen(
                     onNavigateToRegister = {
-                        navController.navigate(AuthRoute.Register)
+                        navController.navigate(AuthGraphRoutes.Register)
                     },
                     onLoginSuccess = {
-                        navController.navigate(AgendaGraph) {
-                            popUpTo(AuthGraph) {
+                        navController.navigate(AgendaGraphRoutes.AgendaGraph) {
+                            popUpTo(AuthGraphRoutes.AuthGraph) {
                                 inclusive = true
                             }
                         }
@@ -47,10 +47,10 @@ fun TaskyNavHost(modifier: Modifier = Modifier) {
                 )
             }
         }
-        navigation<AgendaGraph>(
-            startDestination = AgendaRoute.Agenda
+        navigation<AgendaGraphRoutes.AgendaGraph>(
+            startDestination = AgendaGraphRoutes.Agenda
         ) {
-            composable<AgendaRoute.Agenda> {
+            composable<AgendaGraphRoutes.Agenda> {
                 AgendaScreen(
                     modifier = Modifier.fillMaxSize()
                 )

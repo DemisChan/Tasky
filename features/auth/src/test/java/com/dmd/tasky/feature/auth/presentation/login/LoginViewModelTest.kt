@@ -1,5 +1,6 @@
 package com.dmd.tasky.feature.auth.presentation.login
 
+import app.cash.turbine.test
 import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.feature.auth.R
@@ -46,36 +47,63 @@ class LoginViewModelTest {
         Assert.assertEquals(password, loginViewModel.state.password)
     }
 
+
     @Test
-    fun `login success should update state correctly`() = runTest {
+    fun `login success should update state and emit Success event`() = runTest {
         val token = "token"
         coEvery { authRepository.login(any(), any()) } returns Result.Success(token)
 
-        loginViewModel.onAction(LoginAction.LoginClicked)
+        loginViewModel.events.test {
+            loginViewModel.onAction(LoginAction.LoginClicked)
 
-        Assert.assertEquals(null, loginViewModel.state.error)
-        Assert.assertEquals(false, loginViewModel.state.isLoading)
+            val event = awaitItem()
+            Assert.assertTrue(event is LoginEvent.Success)
+
+            Assert.assertEquals(null, loginViewModel.state.error)
+            Assert.assertEquals(false, loginViewModel.state.isLoading)
+        }
     }
 
 
     @Test
-    fun `login error should update state correctly`() = runTest {
+    fun `login error should update state and emit Error event`() = runTest {
         coEvery {
-            authRepository.login(
-                any(),
-                any()
-            )
+            authRepository.login(any(), any())
         } returns Result.Error(AuthError.Network.UNKNOWN)
 
-        loginViewModel.onAction(LoginAction.LoginClicked)
-        val expectedError = UiText.StringResource(R.string.unknown_network_error)
+        loginViewModel.events.test {
+            loginViewModel.onAction(LoginAction.LoginClicked)
 
-        Assert.assertEquals(false, loginViewModel.state.isLoading)
-        Assert.assertEquals(expectedError, loginViewModel.state.error)
+            val event = awaitItem()
+            Assert.assertTrue(event is LoginEvent.Error)
+            val expectedError = UiText.StringResource(R.string.unknown_network_error)
+            Assert.assertEquals(expectedError, (event as LoginEvent.Error).error)
+
+            Assert.assertEquals(false, loginViewModel.state.isLoading)
+            Assert.assertEquals(expectedError, loginViewModel.state.error)
+        }
     }
 
     @Test
-    fun `login with invalid credentials should update state correctly`() = runTest {
+    fun `login with invalid credentials should emit Error event`() = runTest {
+        coEvery {
+            authRepository.login(any(), any())
+        } returns Result.Error(AuthError.Auth.INVALID_CREDENTIALS)
+
+        loginViewModel.events.test {
+            loginViewModel.onAction(LoginAction.LoginClicked)
+
+            val event = awaitItem()
+            Assert.assertTrue(event is LoginEvent.Error)
+
+            val expectedError = UiText.StringResource(R.string.error_invalid_credentials)
+            Assert.assertEquals(expectedError, (event as LoginEvent.Error).error)
+            Assert.assertEquals(expectedError, loginViewModel.state.error)
+        }
+    }
+
+    @Test
+    fun `typing email should clear error`() = runTest {
         coEvery {
             authRepository.login(
                 any(),
@@ -83,10 +111,15 @@ class LoginViewModelTest {
             )
         } returns Result.Error(AuthError.Auth.INVALID_CREDENTIALS)
 
-        loginViewModel.onAction(LoginAction.LoginClicked)
-        val expectedError = UiText.StringResource(R.string.error_invalid_credentials)
+        loginViewModel.events.test {
+            loginViewModel.onAction(LoginAction.LoginClicked)
+            awaitItem()
 
-        Assert.assertEquals(false, loginViewModel.state.isLoading)
-        Assert.assertEquals(expectedError, loginViewModel.state.error)
+            loginViewModel.onAction(LoginAction.EmailChanged("new@test.com"))
+
+            Assert.assertEquals(null, loginViewModel.state.error)
+
+            expectNoEvents()
+        }
     }
 }
