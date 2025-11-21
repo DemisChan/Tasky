@@ -12,10 +12,11 @@ composeBom = "2024.09.00"
 appcompat = "1.7.1"
 material = "1.13.0"
 materialIconsExtended = "1.7.8"
-runtime = "1.9.2"
+navigationCompose = "2.8.5"
+turbine = "1.2.1"
 uiTooling = "1.9.2"
-hilt = "2.51.1"
-hiltNavigationCompose = "1.2.0"
+hilt = "2.57.2"
+hiltNavigationCompose = "1.3.0"
 retrofit = "2.9.0"
 okhttp = "4.12.0"
 ksp = "2.0.21-1.0.28"
@@ -31,6 +32,7 @@ androidx-compose-material-icons-extended = { module = "androidx.compose.material
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
 androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentials" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -58,6 +60,7 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
