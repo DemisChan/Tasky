@@ -1,10 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
-    namespace = "com.dmd.tasky.core.domain.util"
+    namespace = "com.dmd.tasky.core.data"
     compileSdk {
         version = release(36)
     }
@@ -35,8 +37,28 @@ android {
 }
 
 dependencies {
+    //Android
     implementation(libs.androidx.core.ktx)
+    //Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    //Security-Crypto
+    implementation(libs.androidx.security.crypto)
+
+    implementation(libs.timber)
+
+    // Kotlinx Serialization - For JSON encoding
+    implementation(libs.kotlinx.serialization.json)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+
 }

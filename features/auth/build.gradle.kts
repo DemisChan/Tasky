@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.dmd.tasky.feature.auth"
+    namespace = "com.dmd.tasky.features.auth"
     compileSdk = 36
 
     defaultConfig {
@@ -62,6 +62,7 @@ dependencies {
 
     // Modules
     implementation(projects.core.domain.util)
+    implementation(projects.core.data)
 
     // Credential Manager
     implementation(libs.androidx.credentials)
@@ -69,8 +70,6 @@ dependencies {
 
 
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.compose.material.icons.extended)
     //Compose
     implementation(libs.androidx.activity.compose)
@@ -105,5 +104,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }

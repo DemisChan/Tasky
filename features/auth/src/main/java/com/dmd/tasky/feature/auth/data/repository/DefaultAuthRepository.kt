@@ -13,12 +13,26 @@ import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
+import com.dmd.tasky.core.data.token.TokenManager
+import com.dmd.tasky.core.data.token.SessionData
 
-class DefaultAuthRepository(private val api: AuthApi) : AuthRepository {
+class DefaultAuthRepository(
+    private val api: AuthApi,
+    private val tokenManager: TokenManager
+) : AuthRepository {
     override suspend fun login(email: String, password: String): LoginResult {
         return try {
             val response = api.login(LoginRequest(email, password))
-            Result.Success(response.accessToken)
+            tokenManager.saveSession(
+                SessionData(
+                    accessToken = response.accessToken,
+                    refreshToken = response.refreshToken,
+                    userId = response.userId,
+                    username = response.username,
+                    accessTokenExpirationTimestamp = response.accessTokenExpirationTimestamp
+                )
+            )
+            Result.Success(Unit)
         } catch (e: HttpException) {
             val code = e.code()
             val errorBody = e.response()?.errorBody()?.string()

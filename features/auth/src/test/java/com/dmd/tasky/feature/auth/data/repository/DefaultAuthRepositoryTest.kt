@@ -8,6 +8,8 @@ import com.dmd.tasky.feature.auth.data.remote.dto.RegisterRequest
 import com.dmd.tasky.feature.auth.domain.model.AuthError
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.coVerify
+import com.dmd.tasky.core.data.token.TokenManager
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -19,12 +21,14 @@ import retrofit2.Response
 
 class DefaultAuthRepositoryTest {
     private lateinit var authApi: AuthApi
+    private lateinit var tokenManager: TokenManager
     private lateinit var repository: DefaultAuthRepository
 
     @Before
     fun setUp() {
         authApi = mockk()
-        repository = DefaultAuthRepository(authApi)
+        tokenManager = mockk(relaxed = true)
+        repository = DefaultAuthRepository(authApi, tokenManager)
     }
 
 
@@ -51,7 +55,7 @@ class DefaultAuthRepositoryTest {
 
         // Then
         assertTrue(result is Result.Success)
-        assertEquals(expectedToken, (result as Result.Success).data)
+        coVerify { tokenManager.saveSession(any()) }
     }
 
     @Test

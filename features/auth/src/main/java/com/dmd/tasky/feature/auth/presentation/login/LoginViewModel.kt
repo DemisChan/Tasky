@@ -54,11 +54,10 @@ class LoginViewModel @Inject constructor(
             state = state.copy(isLoading = true)
             Timber.d("Login started")
             authRepository.login(state.email, state.password)
-                .onSuccess { token ->
+                .onSuccess {
                     Timber.d("Login successful")
                     state = state.copy(isLoading = false, error = null)
                     eventChannel.send(LoginEvent.Success)
-                    // TODO: Save token, navigate to next screen
                 }
                 .onError { error ->
                     Timber.e("Login failed: $error")

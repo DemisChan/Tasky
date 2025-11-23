@@ -20,7 +20,7 @@ sealed interface AuthError : Error {
 }
 
 
-typealias LoginResult = Result<String, AuthError>
+typealias LoginResult = Result<Unit, AuthError>
 
 typealias RegisterResult = EmptyResult<AuthError>
 

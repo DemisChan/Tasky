@@ -5,6 +5,7 @@ import com.dmd.tasky.feature.auth.data.remote.ApiKeyInterceptor
 import com.dmd.tasky.feature.auth.data.remote.AuthApi
 import com.dmd.tasky.feature.auth.data.repository.DefaultAuthRepository
 import com.dmd.tasky.feature.auth.domain.AuthRepository
+import com.dmd.tasky.core.data.token.TokenManager
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -53,7 +54,7 @@ object AuthModule {
 
     @Provides
     @Singleton
-    fun provideAuthRepository(api: AuthApi): AuthRepository {
-        return DefaultAuthRepository(api)
+    fun provideAuthRepository(api: AuthApi, tokenManager: TokenManager): AuthRepository {
+        return DefaultAuthRepository(api, tokenManager)
     }
 }
