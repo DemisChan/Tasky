@@ -1,20 +1,21 @@
-package com.dmd.tasky.feature.auth.data.repository
+package com.dmd.tasky.features.auth.data.repository
 
+import com.dmd.tasky.core.data.token.SessionData
+import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.core.domain.util.Result
-import com.dmd.tasky.feature.auth.data.remote.AuthApi
-import com.dmd.tasky.feature.auth.data.remote.dto.LoginRequest
-import com.dmd.tasky.feature.auth.data.remote.dto.RegisterRequest
-import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.domain.model.AuthError
-import com.dmd.tasky.feature.auth.domain.model.LoginResult
-import com.dmd.tasky.feature.auth.domain.model.RegisterResult
+import com.dmd.tasky.features.auth.data.remote.AuthApi
+import com.dmd.tasky.features.auth.data.remote.dto.LoginRequest
+import com.dmd.tasky.features.auth.data.remote.dto.RegisterRequest
+import com.dmd.tasky.features.auth.domain.AuthRepository
+import com.dmd.tasky.features.auth.domain.model.AuthError
+import com.dmd.tasky.features.auth.domain.model.LoginResult
+import com.dmd.tasky.features.auth.domain.model.LogoutResult
+import com.dmd.tasky.features.auth.domain.model.RegisterResult
 import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import com.dmd.tasky.core.data.token.TokenManager
-import com.dmd.tasky.core.data.token.SessionData
 
 class DefaultAuthRepository(
     private val api: AuthApi,
@@ -90,6 +91,22 @@ class DefaultAuthRepository(
             Timber.e("Exception during register: ${e.message}")
             if (e is CancellationException) throw e
             Result.Error(AuthError.Network.UNKNOWN)
+        }
+    }
+
+    override suspend fun logout(): LogoutResult {
+        return try{
+            tokenManager.clearSession()
+            api.logout()
+            Result.Success(Unit)
+        } catch (e: HttpException) {
+            val code = e.code()
+            val errorBody = e.response()?.errorBody()?.string()
+            Timber.e("HTTP Error: Code=$code, Body=$errorBody")
+            when (code) {
+                in 500..599 -> Result.Error(AuthError.Network.SERVER_ERROR)
+                else -> Result.Error(AuthError.Network.UNKNOWN)
+            }
         }
     }
 }

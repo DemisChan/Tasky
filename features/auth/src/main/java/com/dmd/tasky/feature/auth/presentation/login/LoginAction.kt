@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation.login
+package com.dmd.tasky.features.auth.presentation.login
 
 import com.dmd.tasky.core.domain.util.UiText
 

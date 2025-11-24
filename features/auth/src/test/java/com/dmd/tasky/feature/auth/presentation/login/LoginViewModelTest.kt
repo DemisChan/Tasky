@@ -1,12 +1,12 @@
-package com.dmd.tasky.feature.auth.presentation.login
+package com.dmd.tasky.features.auth.presentation.login
 
 import app.cash.turbine.test
 import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.core.domain.util.UiText
-import com.dmd.tasky.feature.auth.R
-import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.domain.model.AuthError
-import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
+import com.dmd.tasky.features.auth.R
+import com.dmd.tasky.features.auth.domain.AuthRepository
+import com.dmd.tasky.features.auth.domain.model.AuthError
+import com.dmd.tasky.features.auth.presentation.MainCoroutineRule
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -50,8 +50,7 @@ class LoginViewModelTest {
 
     @Test
     fun `login success should update state and emit Success event`() = runTest {
-        val token = "token"
-        coEvery { authRepository.login(any(), any()) } returns Result.Success(token)
+        coEvery { authRepository.login(any(), any()) } returns Result.Success(Unit)
 
         loginViewModel.events.test {
             loginViewModel.onAction(LoginAction.LoginClicked)

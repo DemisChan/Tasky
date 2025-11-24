@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation.agenda
+package com.dmd.tasky.features.auth.presentation.agenda
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

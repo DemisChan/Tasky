@@ -1,13 +1,13 @@
-package com.dmd.tasky.feature.auth.presentation.register
+package com.dmd.tasky.features.auth.presentation.register
 
 import FakeAuthRepository
 import app.cash.turbine.test
 import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.core.domain.util.UiText
-import com.dmd.tasky.feature.auth.R
-import com.dmd.tasky.feature.auth.domain.model.AuthError
-import com.dmd.tasky.feature.auth.presentation.MainCoroutineRule
-import com.dmd.tasky.feature.auth.presentation.util.toUiText
+import com.dmd.tasky.features.auth.R
+import com.dmd.tasky.features.auth.domain.model.AuthError
+import com.dmd.tasky.features.auth.presentation.MainCoroutineRule
+import com.dmd.tasky.features.auth.presentation.util.toUiText
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle

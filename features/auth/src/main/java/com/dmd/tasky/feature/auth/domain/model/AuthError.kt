@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.domain.model
+package com.dmd.tasky.features.auth.domain.model
 
 import com.dmd.tasky.core.domain.util.EmptyResult
 import com.dmd.tasky.core.domain.util.Error

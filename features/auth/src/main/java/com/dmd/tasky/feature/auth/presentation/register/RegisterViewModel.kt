@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation.register
+package com.dmd.tasky.features.auth.presentation.register
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -8,9 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.dmd.tasky.core.domain.util.UiText
 import com.dmd.tasky.core.domain.util.onError
 import com.dmd.tasky.core.domain.util.onSuccess
-import com.dmd.tasky.feature.auth.domain.AuthRepository
-import com.dmd.tasky.feature.auth.presentation.login.LoginEvent
-import com.dmd.tasky.feature.auth.presentation.util.toUiText
+import com.dmd.tasky.features.auth.domain.AuthRepository
+import com.dmd.tasky.features.auth.presentation.util.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow

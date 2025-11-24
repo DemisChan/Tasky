@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation.util
+package com.dmd.tasky.features.auth.presentation.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

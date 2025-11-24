@@ -1,15 +1,15 @@
-package com.dmd.tasky.feature.auth.data.repository
+package com.dmd.tasky.features.auth.data.repository
 
-import com.dmd.tasky.core.domain.util.Result
-import com.dmd.tasky.feature.auth.data.remote.AuthApi
-import com.dmd.tasky.feature.auth.data.remote.AuthResponse
-import com.dmd.tasky.feature.auth.data.remote.dto.LoginRequest
-import com.dmd.tasky.feature.auth.data.remote.dto.RegisterRequest
-import com.dmd.tasky.feature.auth.domain.model.AuthError
-import io.mockk.coEvery
-import io.mockk.mockk
-import io.mockk.coVerify
 import com.dmd.tasky.core.data.token.TokenManager
+import com.dmd.tasky.core.domain.util.Result
+import com.dmd.tasky.features.auth.data.remote.AuthApi
+import com.dmd.tasky.features.auth.data.remote.AuthResponse
+import com.dmd.tasky.features.auth.data.remote.dto.LoginRequest
+import com.dmd.tasky.features.auth.data.remote.dto.RegisterRequest
+import com.dmd.tasky.features.auth.domain.model.AuthError
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody.Companion.toResponseBody

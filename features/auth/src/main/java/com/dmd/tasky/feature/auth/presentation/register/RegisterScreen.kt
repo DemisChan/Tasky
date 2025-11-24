@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation.register
+package com.dmd.tasky.features.auth.presentation.register
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -35,13 +35,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.core.domain.util.UiText
-import com.dmd.tasky.feature.auth.R
-import com.dmd.tasky.feature.auth.presentation.login.LoginEvent
-import com.dmd.tasky.feature.auth.presentation.util.asString
-import com.dmd.tasky.feature.auth.presentation.login.TaskyButton
-import com.dmd.tasky.feature.auth.presentation.login.TaskyTextInputField
-import com.dmd.tasky.feature.auth.presentation.login.annotatedString
-import com.dmd.tasky.feature.auth.presentation.util.ObserveAsEvents
+import com.dmd.tasky.features.auth.R
+import com.dmd.tasky.features.auth.presentation.login.TaskyButton
+import com.dmd.tasky.features.auth.presentation.login.TaskyTextInputField
+import com.dmd.tasky.features.auth.presentation.login.annotatedString
+import com.dmd.tasky.features.auth.presentation.util.ObserveAsEvents
+import com.dmd.tasky.features.auth.presentation.util.asString
 
 
 @Composable

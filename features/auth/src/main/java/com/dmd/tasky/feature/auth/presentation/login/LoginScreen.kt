@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation.login
+package com.dmd.tasky.features.auth.presentation.login
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -45,10 +45,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.dmd.tasky.feature.auth.R
-import com.dmd.tasky.feature.auth.presentation.register.RegisterUiState
-import com.dmd.tasky.feature.auth.presentation.util.ObserveAsEvents
-import com.dmd.tasky.feature.auth.presentation.util.asString
+import com.dmd.tasky.features.auth.R
+import com.dmd.tasky.features.auth.presentation.register.RegisterUiState
+import com.dmd.tasky.features.auth.presentation.util.ObserveAsEvents
+import com.dmd.tasky.features.auth.presentation.util.asString
 
 @Composable
 fun TaskyLoginScreen(
