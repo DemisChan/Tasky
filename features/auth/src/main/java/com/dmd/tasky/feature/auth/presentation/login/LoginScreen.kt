@@ -1,5 +1,6 @@
 package com.dmd.tasky.feature.auth.presentation.login
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -45,16 +47,44 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dmd.tasky.feature.auth.R
 import com.dmd.tasky.feature.auth.presentation.register.RegisterUiState
+import com.dmd.tasky.feature.auth.presentation.util.ObserveAsEvents
+import com.dmd.tasky.feature.auth.presentation.util.asString
 
 @Composable
 fun TaskyLoginScreen(
+    onNavigateToRegister: () -> Unit,
+    onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val loginUiState = viewModel.state
+    val context = LocalContext.current
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is LoginEvent.Error -> {
+                Toast.makeText(
+                    context, event.error.asString(context = context), Toast.LENGTH_LONG
+                ).show()
+            }
+
+            is LoginEvent.Success -> {
+                Toast.makeText(
+                    context, "Login successful", Toast.LENGTH_LONG
+                ).show()
+                onLoginSuccess()
+            }
+        }
+    }
+
     TaskyLoginContent(
         state = loginUiState,
-        onAction = viewModel::onAction,
+        onAction = { action ->
+            when (action) {
+                is LoginAction.SignUpClicked -> onNavigateToRegister()
+                else -> viewModel.onAction(action)
+            }
+        },
         modifier = modifier
     )
 }
@@ -94,69 +124,82 @@ private fun TaskyLoginContent(
                     topEnd = 25.dp,
                 ),
             ) {
-                TaskyTextInputField(
-                    hint = "Email",
-                    value = state.email,
-                    onValueChange = { onAction(LoginAction.EmailChanged(it)) },
+                Column(
                     modifier = Modifier
-                        .padding(
-                            top = 28.dp,
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    hidePassword = null,
-                    trailingIcon = null
-                )
-                TaskyTextInputField(
-                    hint = "Password",
-                    value = state.password,
-                    onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
-                    hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier
-                        .padding(
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally),
-                    trailingIcon = {
-                        IconButton(onClick = { onAction(LoginAction.PasswordVisibilityChanged) }) {
-                            Icon(
-                                imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (state.passwordVisible) {
-                                    stringResource(R.string.content_description_hide_password)
-                                } else {
-                                    stringResource(R.string.content_description_show_password)
-                                }
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    TaskyTextInputField(
+                        hint = "Email",
+                        value = state.email,
+                        onValueChange = { onAction(LoginAction.EmailChanged(it)) },
+                        modifier = Modifier
+                            .padding(
+                                top = 28.dp,
+                            )
+                            .fillMaxWidth(),
+                        hidePassword = null,
+                        trailingIcon = null
+                    )
+                    TaskyTextInputField(
+                        hint = "Password",
+                        value = state.password,
+                        onValueChange = { onAction(LoginAction.PasswordChanged(it)) },
+                        hidePassword = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally),
+                        trailingIcon = {
+                            IconButton(onClick = { onAction(LoginAction.PasswordVisibilityChanged) }) {
+                                Icon(
+                                    imageVector = if (state.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                    contentDescription = if (state.passwordVisible) {
+                                        stringResource(R.string.content_description_hide_password)
+                                    } else {
+                                        stringResource(R.string.content_description_show_password)
+                                    }
+                                )
+                            }
+                        }
+                    )
+                    TaskyButton(
+                        text = "LOG IN",
+                        onClick = { onAction(LoginAction.LoginClicked) },
+                        modifier = Modifier
+                            .padding(
+                                top = 32.dp,
+                                start = 16.dp,
+                                end = 16.dp
+                            )
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    BasicText(
+                        text = annotatedString(
+                            onAction = { onAction(LoginAction.SignUpClicked) },
+                            state.javaClass.name
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .padding(top = 20.dp)
+                            .align(Alignment.CenterHorizontally),
+                    )
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        state.error?.let { error ->
+                            Text(
+                                text = error.asString(),
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(bottom = 16.dp)
                             )
                         }
-                    }
-                )
-                TaskyButton(
-                    text = "LOG IN",
-                    onClick = { onAction(LoginAction.LoginClicked) },
-                    modifier = Modifier
-                        .padding(
-                            top = 32.dp,
-                            start = 16.dp,
-                            end = 16.dp
-                        )
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                )
-                BasicText(
-                    text = annotatedString(
-                        onAction(LoginAction.SignUpClicked),
-                        state.javaClass.name
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                        .align(Alignment.CenterHorizontally),
-                )
 
+                    }
+
+                }
             }
 
         }
@@ -208,9 +251,9 @@ fun TaskyButton(
 
 }
 
-fun annotatedString(onAction: Unit, state: String) = buildAnnotatedString {
+fun annotatedString(onAction: () -> Unit, state: String) = buildAnnotatedString {
     if (state == LoginUiState::class.qualifiedName) {
-        append("DON’T HAVE AN ACCOUNT? ")
+        append("DON'T HAVE AN ACCOUNT? ")
     }
     if (state == RegisterUiState::class.qualifiedName) {
         append("ALREADY HAVE AN ACCOUNT? ")
@@ -219,7 +262,7 @@ fun annotatedString(onAction: Unit, state: String) = buildAnnotatedString {
 
     val signUp = LinkAnnotation.Clickable(
         tag = "SIGN UP",
-        linkInteractionListener = { onAction }
+        linkInteractionListener = { onAction() }
     )
     pushLink(signUp)
 
@@ -249,15 +292,15 @@ fun TaskyLoginContentPreview() {
         onAction = { action ->
             when (action) {
                 is LoginAction.EmailChanged -> {
-                    state = state.copy(email = action.email)
+                    state.copy(email = action.email)
                 }
 
                 is LoginAction.PasswordChanged -> {
-                    state = state.copy(password = action.password)
+                    state.copy(password = action.password)
                 }
 
                 is LoginAction.PasswordVisibilityChanged -> {
-                    state = state.copy(passwordVisible = !state.passwordVisible)
+                    state.copy(passwordVisible = !state.passwordVisible)
                 }
 
                 is LoginAction.LoginClicked -> {}

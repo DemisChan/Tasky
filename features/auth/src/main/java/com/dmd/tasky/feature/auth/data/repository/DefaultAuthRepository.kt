@@ -48,14 +48,13 @@ class DefaultAuthRepository(private val api: AuthApi) : AuthRepository {
     ): RegisterResult {
         return try {
             Timber.d("Attempting register with: name='$fullName', email='$email'")
-            val response = api.register(
+            api.register(
                 RegisterRequest(
                     fullName = fullName,
                     email = email,
                     password = password
                 )
             )
-            Timber.d("Register successful! Status code: ${response.code()}")
             Result.Success(Unit)
         } catch (e: HttpException) {
             val code = e.code()
