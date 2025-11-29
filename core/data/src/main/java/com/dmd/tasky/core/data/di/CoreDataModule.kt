@@ -26,6 +26,13 @@ object CoreDataModule {
 
     @Provides
     @Singleton
+    fun provideJson(): Json {
+        return Json { ignoreUnknownKeys = true }
+    }
+
+
+    @Provides
+    @Singleton
     fun provideCryptoManager(): CryptoManager {
         return CryptoManager()
     }
@@ -35,9 +42,12 @@ object CoreDataModule {
     @Singleton
     fun providesSessionManager(
         @ApplicationContext context: Context,
-        cryptoManager: CryptoManager
+        cryptoManager: CryptoManager,
+        json: Json
     ): TokenManager {
-        return DataStoreTokenStorage(context, cryptoManager)
+        return DataStoreTokenStorage(
+            context, cryptoManager, json
+        )
     }
 
     @Provides
@@ -69,12 +79,11 @@ object CoreDataModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
-        val networkJson = Json { ignoreUnknownKeys = true }
+    fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(networkJson.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
     }
 }

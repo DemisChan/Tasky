@@ -3,6 +3,8 @@ package com.dmd.tasky.features.auth.data.repository
 import com.dmd.tasky.core.data.token.SessionData
 import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.core.domain.util.Result
+import com.dmd.tasky.core.domain.util.asEmptyDataResult
+import com.dmd.tasky.core.domain.util.onSuccess
 import com.dmd.tasky.features.auth.data.remote.AuthApi
 import com.dmd.tasky.features.auth.data.remote.dto.LoginRequest
 import com.dmd.tasky.features.auth.data.remote.dto.RegisterRequest
@@ -22,38 +24,18 @@ class DefaultAuthRepository(
     private val tokenManager: TokenManager
 ) : AuthRepository {
     override suspend fun login(email: String, password: String): LoginResult {
-        return try {
-            val response = api.login(LoginRequest(email, password))
-            tokenManager.saveSession(
-                SessionData(
-                    accessToken = response.accessToken,
-                    refreshToken = response.refreshToken,
-                    userId = response.userId,
-                    username = response.username,
-                    accessTokenExpirationTimestamp = response.accessTokenExpirationTimestamp
+        return safeApiCall { api.login(LoginRequest(email, password)) }
+            .onSuccess { response ->
+                tokenManager.saveSession(
+                    SessionData(
+                        accessToken = response.accessToken,
+                        refreshToken = response.refreshToken,
+                        userId = response.userId,
+                        username = response.username,
+                        accessTokenExpirationTimestamp = response.accessTokenExpirationTimestamp
+                    )
                 )
-            )
-            Result.Success(Unit)
-        } catch (e: HttpException) {
-            val code = e.code()
-            val errorBody = e.response()?.errorBody()?.string()
-            Timber.e("HTTP Error: Code=$code, Body=$errorBody")
-            when (code) {
-                in 500..599 -> Result.Error(AuthError.Network.SERVER_ERROR)
-                401 -> Result.Error(AuthError.Auth.INVALID_CREDENTIALS)
-                else -> Result.Error(AuthError.Network.UNKNOWN)
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.e("Timeout error: ${e.message}")
-            Result.Error(AuthError.Network.TIMEOUT)
-        } catch (e: IOException) {
-            Timber.e("Network error: ${e.message}")
-            Result.Error(AuthError.Network.NO_INTERNET)
-        } catch (e: Exception) {
-            Timber.e("Exception during login: ${e.message}")
-            if (e is CancellationException) throw e
-            Result.Error(AuthError.Network.UNKNOWN)
-        }
+            }.asEmptyDataResult()
     }
 
     override suspend fun register(
@@ -61,8 +43,7 @@ class DefaultAuthRepository(
         email: String,
         password: String
     ): RegisterResult {
-        return try {
-            Timber.d("Attempting register with: name='$fullName', email='$email'")
+        return safeApiCall {
             api.register(
                 RegisterRequest(
                     fullName = fullName,
@@ -70,43 +51,41 @@ class DefaultAuthRepository(
                     password = password
                 )
             )
-            Result.Success(Unit)
-        } catch (e: HttpException) {
-            val code = e.code()
-            val errorBody = e.response()?.errorBody()?.string()
-            Timber.e("HTTP Error: Code=$code, Body=$errorBody")
-            when (code) {
-                409 -> Result.Error(AuthError.Auth.USER_ALREADY_EXISTS)
-                400 -> Result.Error(AuthError.Auth.VALIDATION_FAILED)
-                in 500..599 -> Result.Error(AuthError.Network.SERVER_ERROR)
-                else -> Result.Error(AuthError.Network.UNKNOWN)
-            }
-        } catch (e: SocketTimeoutException) {
-            Timber.e("Timeout error: ${e.message}")
-            Result.Error(AuthError.Network.TIMEOUT)
-        } catch (e: IOException) {
-            Timber.e("Network error: ${e.message}")
-            Result.Error(AuthError.Network.NO_INTERNET)
-        } catch (e: Exception) {
-            Timber.e("Exception during register: ${e.message}")
-            if (e is CancellationException) throw e
-            Result.Error(AuthError.Network.UNKNOWN)
         }
     }
 
     override suspend fun logout(): LogoutResult {
-        return try{
-            tokenManager.clearSession()
-            api.logout()
-            Result.Success(Unit)
-        } catch (e: HttpException) {
-            val code = e.code()
-            val errorBody = e.response()?.errorBody()?.string()
-            Timber.e("HTTP Error: Code=$code, Body=$errorBody")
-            when (code) {
-                in 500..599 -> Result.Error(AuthError.Network.SERVER_ERROR)
-                else -> Result.Error(AuthError.Network.UNKNOWN)
+        return safeApiCall { api.logout() }
+            .onSuccess {
+                tokenManager.clearSession()
             }
+    }
+}
+
+private suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T, AuthError> {
+    return try {
+        val response = apiCall()
+        Result.Success(response)
+    } catch (e: HttpException) {
+        val code = e.code()
+        val errorBody = e.response()?.errorBody()?.string()
+        Timber.e("HTTP Error: Code=$code, Body=$errorBody")
+        when (code) {
+            400 -> Result.Error(AuthError.Auth.VALIDATION_FAILED)
+            401 -> Result.Error(AuthError.Auth.INVALID_CREDENTIALS)
+            409 -> Result.Error(AuthError.Auth.USER_ALREADY_EXISTS)
+            in 500..599 -> Result.Error(AuthError.Network.SERVER_ERROR)
+            else -> Result.Error(AuthError.Network.UNKNOWN)
         }
+    } catch (e: SocketTimeoutException) {
+        Timber.e("Timeout error: ${e.message}")
+        Result.Error(AuthError.Network.TIMEOUT)
+    } catch (e: IOException) {
+        Timber.e("Network error: ${e.message}")
+        Result.Error(AuthError.Network.NO_INTERNET)
+    } catch (e: Exception) {
+        Timber.e("Exception: ${e.message}")
+        if (e is CancellationException) throw e
+        Result.Error(AuthError.Network.UNKNOWN)
     }
 }

@@ -10,7 +10,6 @@ import androidx.navigation.compose.rememberNavController
 import com.dmd.tasky.features.auth.presentation.agenda.AgendaScreen
 import com.dmd.tasky.features.auth.presentation.login.TaskyLoginScreen
 import com.dmd.tasky.features.auth.presentation.register.TaskyRegisterScreen
-import com.dmd.tasky.ui.splash.SplashScreen
 
 @Composable
 fun TaskyNavHost(modifier: Modifier = Modifier) {
@@ -21,26 +20,8 @@ fun TaskyNavHost(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         navigation<AuthGraphRoutes.AuthGraph>(
-            startDestination = AuthGraphRoutes.Splash
+            startDestination = AuthGraphRoutes.Login
         ) {
-            composable<AuthGraphRoutes.Splash> {
-                SplashScreen(
-                    onNavigateToLogin = {
-                        navController.navigate(AuthGraphRoutes.Login) {
-                            popUpTo(AuthGraphRoutes.Splash) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    onNavigateToAgenda = {
-                        navController.navigate(AgendaGraphRoutes.AgendaGraph) {
-                            popUpTo(AuthGraphRoutes.AuthGraph) {
-                                inclusive = true
-                            }
-                        }
-                    }
-                )
-            }
             composable<AuthGraphRoutes.Register> {
                 TaskyRegisterScreen(
                     onNavigateToLogin = {

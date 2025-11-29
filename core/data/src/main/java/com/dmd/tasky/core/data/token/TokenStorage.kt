@@ -21,10 +21,10 @@ private val Context.dataStore by preferencesDataStore("session_prefs")
 
 class DataStoreTokenStorage @Inject constructor(
     private val context: Context,
-    private val cryptoManager: CryptoManager
+    private val cryptoManager: CryptoManager,
+    private val json: Json
 ) : TokenManager {
 
-    private val json = Json { ignoreUnknownKeys = true }
     private companion object {
         val ENCRYPTED_TOKENS = stringPreferencesKey("encrypted_tokens")
         val USER_ID = stringPreferencesKey("user_id")

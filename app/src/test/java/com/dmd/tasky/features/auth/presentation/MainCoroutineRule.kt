@@ -1,4 +1,4 @@
-package com.dmd.tasky.feature.auth.presentation
+package com.dmd.tasky.features.auth.presentation
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
