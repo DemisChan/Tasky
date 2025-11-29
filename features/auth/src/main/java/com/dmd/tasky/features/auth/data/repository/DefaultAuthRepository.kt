@@ -24,7 +24,7 @@ class DefaultAuthRepository(
     private val tokenManager: TokenManager
 ) : AuthRepository {
     override suspend fun login(email: String, password: String): LoginResult {
-        return safeApiCall { api.login(LoginRequest(email, password)) }
+        return safeApiCall("login") { api.login(LoginRequest(email, password)) }
             .onSuccess { response ->
                 tokenManager.saveSession(
                     SessionData(
@@ -43,7 +43,7 @@ class DefaultAuthRepository(
         email: String,
         password: String
     ): RegisterResult {
-        return safeApiCall {
+        return safeApiCall("register") {
             api.register(
                 RegisterRequest(
                     fullName = fullName,
@@ -55,21 +55,21 @@ class DefaultAuthRepository(
     }
 
     override suspend fun logout(): LogoutResult {
-        return safeApiCall { api.logout() }
+        return safeApiCall("logout") { api.logout() }
             .onSuccess {
                 tokenManager.clearSession()
             }
     }
 }
 
-private suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T, AuthError> {
+private suspend fun <T> safeApiCall(operation: String, apiCall: suspend () -> T): Result<T, AuthError> {
     return try {
         val response = apiCall()
         Result.Success(response)
     } catch (e: HttpException) {
         val code = e.code()
         val errorBody = e.response()?.errorBody()?.string()
-        Timber.e("HTTP Error: Code=$code, Body=$errorBody")
+        Timber.e("HTTP Error during $operation: Code=$code, Body=$errorBody")
         when (code) {
             400 -> Result.Error(AuthError.Auth.VALIDATION_FAILED)
             401 -> Result.Error(AuthError.Auth.INVALID_CREDENTIALS)
@@ -78,13 +78,13 @@ private suspend fun <T> safeApiCall(apiCall: suspend () -> T): Result<T, AuthErr
             else -> Result.Error(AuthError.Network.UNKNOWN)
         }
     } catch (e: SocketTimeoutException) {
-        Timber.e("Timeout error: ${e.message}")
+        Timber.e("Timeout error $operation: ${e.message}")
         Result.Error(AuthError.Network.TIMEOUT)
     } catch (e: IOException) {
-        Timber.e("Network error: ${e.message}")
+        Timber.e("Network error $operation: ${e.message}")
         Result.Error(AuthError.Network.NO_INTERNET)
     } catch (e: Exception) {
-        Timber.e("Exception: ${e.message}")
+        Timber.e("Exception $operation: ${e.message}")
         if (e is CancellationException) throw e
         Result.Error(AuthError.Network.UNKNOWN)
     }

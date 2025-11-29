@@ -3,7 +3,6 @@ package com.dmd.tasky.core.data.token
 import android.content.Context
 import android.util.Base64
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.dmd.tasky.core.data.local.EncryptedTokenData
@@ -26,11 +25,7 @@ class DataStoreTokenStorage @Inject constructor(
 ) : TokenManager {
 
     private companion object {
-        val ENCRYPTED_TOKENS = stringPreferencesKey("encrypted_tokens")
-        val USER_ID = stringPreferencesKey("user_id")
-        val USERNAME = stringPreferencesKey("username")
-        val ACCESS_TOKEN_EXPIRATION_TIMESTAMP =
-            longPreferencesKey("access_token_expiration_timestamp")
+        val SESSION_DATA = stringPreferencesKey("session_data")
     }
 
     override suspend fun saveSession(sessionData: SessionData) {
@@ -39,20 +34,19 @@ class DataStoreTokenStorage @Inject constructor(
         try {
             val tokenData = EncryptedTokenData(
                 accessToken = sessionData.accessToken,
-                refreshToken = sessionData.refreshToken
+                refreshToken = sessionData.refreshToken,
+                userId = sessionData.userId,
+                username = sessionData.username,
+                accessTokenExpirationTimestamp = sessionData.accessTokenExpirationTimestamp
             )
             val tokenJson = json.encodeToString(tokenData)
-            val encryptedTokens = Base64.encodeToString(
+            val encryptedData = Base64.encodeToString(
                 cryptoManager.encrypt(tokenJson.encodeToByteArray()),
                 Base64.DEFAULT
             )
 
             context.dataStore.edit { preferences ->
-                preferences[ENCRYPTED_TOKENS] = encryptedTokens
-                preferences[USER_ID] = sessionData.userId
-                preferences[USERNAME] = sessionData.username
-                preferences[ACCESS_TOKEN_EXPIRATION_TIMESTAMP] =
-                    sessionData.accessTokenExpirationTimestamp
+                preferences[SESSION_DATA] = encryptedData
             }
         } catch (e: Exception) {
             Timber.e(e, "Failed to save session")
@@ -63,15 +57,11 @@ class DataStoreTokenStorage @Inject constructor(
     override suspend fun getSession(): SessionData? {
         Timber.d("Retrieving session")
         val preferences = context.dataStore.data.first()
-        val encryptedTokens = preferences[ENCRYPTED_TOKENS] ?: return null
-        val userId = preferences[USER_ID] ?: return null
-        val username = preferences[USERNAME] ?: return null
-        val accessTokenExpirationTimestamp =
-            preferences[ACCESS_TOKEN_EXPIRATION_TIMESTAMP] ?: return null
+        val encryptedData = preferences[SESSION_DATA] ?: return null
 
         return try {
             val decryptedJson = cryptoManager.decrypt(
-                Base64.decode(encryptedTokens, Base64.DEFAULT)
+                Base64.decode(encryptedData, Base64.DEFAULT)
             ).decodeToString()
 
             val tokenData = json.decodeFromString<EncryptedTokenData>(decryptedJson)
@@ -79,9 +69,9 @@ class DataStoreTokenStorage @Inject constructor(
             SessionData(
                 accessToken = tokenData.accessToken,
                 refreshToken = tokenData.refreshToken,
-                userId = userId,
-                username = username,
-                accessTokenExpirationTimestamp = accessTokenExpirationTimestamp,
+                userId = tokenData.userId,
+                username = tokenData.username,
+                accessTokenExpirationTimestamp = tokenData.accessTokenExpirationTimestamp,
             )
         } catch (e: Exception) {
             Timber.e(e, "Failed to decrypt session data")
@@ -96,19 +86,34 @@ class DataStoreTokenStorage @Inject constructor(
         }
     }
 
-    override suspend fun isAuthenticated(): Flow<Boolean> {
-        return context.dataStore.data.map { preferences ->
-            val hasToken = preferences[ENCRYPTED_TOKENS] != null
-            val isValid = isTokenValid()
-            hasToken && isValid
-        }
-    }
 
     override suspend fun isTokenValid(): Boolean {
-        val preferences = context.dataStore.data.first()
-        val expirationTimestamp = preferences[ACCESS_TOKEN_EXPIRATION_TIMESTAMP] ?: return false
+        val session = getSession() ?: return false
+        val expirationTimestamp = session.accessTokenExpirationTimestamp
         val currentTime = System.currentTimeMillis()
-        val safetyBufferMs = 5 * 60 * 1000 // 5 minutes in milliseconds
+        val safetyBufferMs = 5 * 60 * 1000 // 5 minutes
         return currentTime < expirationTimestamp - safetyBufferMs
+    }
+
+    override fun isAuthenticated(): Flow<Boolean> {
+        return context.dataStore.data.map { preferences ->
+            val encryptedData = preferences[SESSION_DATA]
+            if (encryptedData == null) {
+                false
+            } else {
+                try {
+                    val decryptedJson = cryptoManager.decrypt(
+                        Base64.decode(encryptedData, Base64.DEFAULT)
+                    ).decodeToString()
+
+                    val tokenData = json.decodeFromString<EncryptedTokenData>(decryptedJson)
+                    val safetyBufferMs = 5 * 60 * 1000
+                    tokenData.accessTokenExpirationTimestamp - safetyBufferMs > System.currentTimeMillis()
+                } catch (e: Exception) {
+                    Timber.e(e, "Failed to validate session")
+                    false
+                }
+            }
+        }
     }
 }

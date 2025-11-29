@@ -7,7 +7,7 @@ interface TokenManager {
     suspend fun saveSession(sessionData: SessionData)
     suspend fun getSession(): SessionData?
     suspend fun clearSession()
-    suspend fun isAuthenticated(): Flow<Boolean>
+    fun isAuthenticated(): Flow<Boolean>
     suspend fun isTokenValid(): Boolean
 }
 
