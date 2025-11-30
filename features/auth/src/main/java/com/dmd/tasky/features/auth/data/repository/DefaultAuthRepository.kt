@@ -78,13 +78,13 @@ private suspend fun <T> safeApiCall(operation: String, apiCall: suspend () -> T)
             else -> Result.Error(AuthError.Network.UNKNOWN)
         }
     } catch (e: SocketTimeoutException) {
-        Timber.e("Timeout error $operation: ${e.message}")
+        Timber.e("Timeout error during $operation: ${e.message}")
         Result.Error(AuthError.Network.TIMEOUT)
     } catch (e: IOException) {
-        Timber.e("Network error $operation: ${e.message}")
+        Timber.e("Network error during $operation: ${e.message}")
         Result.Error(AuthError.Network.NO_INTERNET)
     } catch (e: Exception) {
-        Timber.e("Exception $operation: ${e.message}")
+        Timber.e("Exception during $operation: ${e.message}")
         if (e is CancellationException) throw e
         Result.Error(AuthError.Network.UNKNOWN)
     }
