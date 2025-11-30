@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.dmd.tasky"
+    namespace = "com.dmd.tasky.core.domain.util"
     compileSdk {
         version = release(36)
     }
@@ -36,8 +36,6 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -3,15 +3,16 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.dmd.tasky.features.auth"
-    compileSdk = 36
+    namespace = "com.dmd.tasky.core.data"
+    compileSdk {
+        version = release(36)
+    }
 
     defaultConfig {
         minSdk = 33
@@ -29,8 +30,6 @@ android {
             }
         }
 
-
-
         getByName("debug") {
             val apiKey = localProperties.getProperty("apiKey", "")
             buildConfigField("String", "API_KEY", apiKey)
@@ -42,6 +41,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "API_KEY", "\"\"")
+            buildConfigField("String", "BASE_URL", "\"https://tasky.pl-coding.com/\"")
         }
     }
     compileOptions {
@@ -52,9 +53,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
-        compose = true
         buildConfig = true
-        android.androidResources.enable = true
     }
 }
 
@@ -62,48 +61,34 @@ dependencies {
 
     // Modules
     implementation(projects.core.domain.util)
-    implementation(projects.core.data)
 
-    // Credential Manager
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-
-    implementation(libs.kotlinx.coroutines.core)
-
+    //Android
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.compose.material.icons.extended)
-    //Compose
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.ui.graphics)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3)
+    //Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    //Security-Crypto
+    implementation(libs.androidx.security.crypto)
+
+    implementation(libs.timber)
+
+    // Kotlinx Serialization - For JSON encoding
+    implementation(libs.kotlinx.serialization.json)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    implementation(libs.hilt.navigation.compose)
 
-    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
 
-    // Kotlinx Serialization
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.timber)
-
     testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.kotlinx.coroutines.test)
-
-    testImplementation(libs.turbine)
-
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    debugImplementation(libs.androidx.compose.ui.tooling)
+
 }

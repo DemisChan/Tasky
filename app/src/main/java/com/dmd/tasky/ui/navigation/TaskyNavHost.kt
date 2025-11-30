@@ -7,9 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.dmd.tasky.feature.auth.presentation.agenda.AgendaScreen
-import com.dmd.tasky.feature.auth.presentation.login.TaskyLoginScreen
-import com.dmd.tasky.feature.auth.presentation.register.TaskyRegisterScreen
+import com.dmd.tasky.features.auth.presentation.agenda.AgendaScreen
+import com.dmd.tasky.features.auth.presentation.login.TaskyLoginScreen
+import com.dmd.tasky.features.auth.presentation.register.TaskyRegisterScreen
 
 @Composable
 fun TaskyNavHost(modifier: Modifier = Modifier) {
