@@ -24,7 +24,9 @@ retrofitKotlinxSerializationConverter = "1.0.0"
 kotlinxSerialization = "1.7.1"
 datastore = "1.1.1"
 security-crypto = "1.1.0-alpha06"
-splashscreen = "1.0.1"
+splashscreen = "1.2.0"
+coil = "2.4.0"
+accompanist = "0.32.0"
 
 
 [libraries]
@@ -62,6 +64,8 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto"}
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
