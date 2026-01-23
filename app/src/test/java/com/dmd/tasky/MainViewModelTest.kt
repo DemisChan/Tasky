@@ -28,23 +28,34 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `when token is valid then isAuthenticated is true`() = runTest {
+    fun `MainState defaults have correct values`() {
+        // Test the data class defaults directly - no coroutines involved
+        val defaultState = MainState()
+
+        assertEquals(true, defaultState.isCheckingAuth)
+        assertEquals(false, defaultState.isLoggedIn)
+    }
+
+    @Test
+    fun `when token is valid then isLoggedIn is true and isCheckingAuth is false`() = runTest {
         coEvery { tokenManager.isTokenValid() } returns true
         viewModel = MainViewModel(tokenManager)
 
         advanceUntilIdle()
 
-        assertEquals(true, viewModel.isAuthenticated)
+        assertEquals(false, viewModel.state.isCheckingAuth)
+        assertEquals(true, viewModel.state.isLoggedIn)
     }
 
     @Test
-    fun `when token is invalid then isAuthenticated is false`() = runTest {
+    fun `when token is invalid then isLoggedIn is false and isCheckingAuth is false`() = runTest {
         coEvery { tokenManager.isTokenValid() } returns false
         viewModel = MainViewModel(tokenManager)
 
         advanceUntilIdle()
 
-        assertEquals(false, viewModel.isAuthenticated)
+        assertEquals(false, viewModel.state.isCheckingAuth)
+        assertEquals(false, viewModel.state.isLoggedIn)
     }
 
     @Test
