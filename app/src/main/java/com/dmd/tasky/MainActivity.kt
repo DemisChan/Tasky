@@ -22,19 +22,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Keep splash visible while checking auth status
+        // Once isCheckingAuth becomes false, splash dismisses regardless of auth result
         installSplashScreen().setKeepOnScreenCondition {
-            !viewModel.isAuthenticated
+            viewModel.state.isCheckingAuth
         }
 
         enableEdgeToEdge()
         setContent {
-            val isAuthenticated = viewModel.isAuthenticated
-            if (isAuthenticated) {
+            // Only render content after auth check completes
+            if (!viewModel.state.isCheckingAuth) {
                 TaskyTheme {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         TaskyNavHost(
                             modifier = Modifier.padding(innerPadding),
-                            isAuthenticated = true
+                            isAuthenticated = viewModel.state.isLoggedIn
                         )
                     }
                 }
