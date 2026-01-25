@@ -17,6 +17,9 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    # Global environment variables for ALL steps in this job
+    env:
+      ORG_GRADLE_PROJECT_API_KEY: ${{ secrets.API_KEY }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -29,7 +32,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          # This speeds up your 3-month project significantly!
           cache: 'gradle' 
 
       - name: Grant execute permission for gradlew
