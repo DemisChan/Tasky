@@ -24,5 +24,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "Tasky"
 include(":app")
 include(":features:auth")
+include(":features:agenda")
 include(":core:domain:util")
 include(":core:data")

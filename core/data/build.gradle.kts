@@ -22,18 +22,9 @@ android {
     }
 
     buildTypes {
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.inputStream().use {
-                localProperties.load(it)
-            }
-        }
-
         getByName("debug") {
-            val apiKey = localProperties.getProperty("apiKey", "")
-            buildConfigField("String", "API_KEY", apiKey)
-            buildConfigField("String", "BASE_URL", "\"https://tasky.pl-coding.com/\"")
+            buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
+            buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")
         }
         release {
             isMinifyEnabled = false
@@ -41,8 +32,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_KEY", "\"\"")
-            buildConfigField("String", "BASE_URL", "\"https://tasky.pl-coding.com/\"")
         }
     }
     compileOptions {

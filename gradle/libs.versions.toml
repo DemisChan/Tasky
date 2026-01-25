@@ -24,6 +24,7 @@ retrofitKotlinxSerializationConverter = "1.0.0"
 kotlinxSerialization = "1.7.1"
 datastore = "1.1.1"
 security-crypto = "1.1.0-alpha06"
+splashscreen = "1.0.1"
 
 
 [libraries]
@@ -60,6 +61,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto"}
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
