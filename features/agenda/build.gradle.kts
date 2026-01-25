@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.dmd.tasky.features.auth"
+    namespace = "com.dmd.tasky.features.agenda"
     compileSdk = 36
 
     defaultConfig {
@@ -50,10 +50,6 @@ dependencies {
     // Modules
     implementation(projects.core.domain.util)
     implementation(projects.core.data)
-
-    // Credential Manager
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
 
     implementation(libs.kotlinx.coroutines.core)
 

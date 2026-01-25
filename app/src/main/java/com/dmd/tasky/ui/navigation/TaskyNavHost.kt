@@ -12,11 +12,16 @@ import com.dmd.tasky.features.auth.presentation.login.TaskyLoginScreen
 import com.dmd.tasky.features.auth.presentation.register.TaskyRegisterScreen
 
 @Composable
-fun TaskyNavHost(modifier: Modifier = Modifier) {
+fun TaskyNavHost(
+    modifier: Modifier = Modifier,
+    isAuthenticated: Boolean
+) {
     val navController = rememberNavController()
+    val startDestination = if (isAuthenticated) AgendaGraphRoutes.AgendaGraph else AuthGraphRoutes.AuthGraph
+
     NavHost(
         navController = navController,
-        startDestination = AuthGraphRoutes.AuthGraph,
+        startDestination = startDestination,
         modifier = modifier
     ) {
         navigation<AuthGraphRoutes.AuthGraph>(
