@@ -69,4 +69,6 @@ interface AgendaRepository {
     // ========== ATTENDEE OPERATIONS ==========
     suspend fun checkAttendeeExists(email: String): AttendeeResult
     suspend fun removeAttendee(eventId: String): Result<Unit, AgendaError>
+
+
 }
