@@ -10,9 +10,7 @@ plugins {
 
 android {
     namespace = "com.dmd.tasky.core.data"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 33
@@ -22,6 +20,14 @@ android {
     }
 
     buildTypes {
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use {
+                localProperties.load(it)
+            }
+        }
+
         getByName("debug") {
             buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
             buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")

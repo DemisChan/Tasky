@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +21,14 @@ android {
     }
 
     buildTypes {
+        val localProperties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.inputStream().use {
+                localProperties.load(it)
+            }
+        }
+
         getByName("debug") {
             buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
             buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")
@@ -62,6 +72,12 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    // Image loading
+    implementation(libs.coil.compose)
+
+    // Permissions (for photo picker)
+    implementation(libs.accompanist.permissions)
 
     // Hilt
     implementation(libs.hilt.android)
