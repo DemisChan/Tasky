@@ -14,6 +14,8 @@ android {
     defaultConfig {
         minSdk = 33
 
+        buildConfigField("boolean", "USE_FAKE_BACKEND", project.ext["useFakeBackend"] as String)
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }

@@ -1,8 +1,10 @@
 package com.dmd.tasky.features.agenda.di
 
 import com.dmd.tasky.core.data.token.TokenManager
+import com.dmd.tasky.features.agenda.BuildConfig
 import com.dmd.tasky.features.agenda.data.remote.AgendaApi
 import com.dmd.tasky.features.agenda.data.repository.DefaultAgendaRepository
+import com.dmd.tasky.features.agenda.data.repository.InMemoryAgendaRepository
 import com.dmd.tasky.features.agenda.domain.repository.AgendaRepository
 import dagger.Module
 import dagger.Provides
@@ -45,6 +47,10 @@ object AgendaModule {
         tokenManager: TokenManager,
         @Named(S3_CLIENT) okHttpClient: OkHttpClient
     ): AgendaRepository {
-        return DefaultAgendaRepository(api, tokenManager, okHttpClient)
+        return if (BuildConfig.USE_FAKE_BACKEND) {
+            InMemoryAgendaRepository(tokenManager)
+        } else {
+            DefaultAgendaRepository(api, tokenManager, okHttpClient)
+        }
     }
 }

@@ -22,4 +22,9 @@ allprojects {
     val apiKey = System.getenv("API_KEY") ?: localProperties.getProperty("apiKey", "")
     ext["apiKey"] = apiKey
     ext["baseUrl"] = "https://tasky.pl-coding.com/"
+
+    // true = run against in-memory fake repositories (no network / API key needed).
+    // Override with USE_FAKE_BACKEND env var or `useFakeBackend=false` in local.properties.
+    ext["useFakeBackend"] = System.getenv("USE_FAKE_BACKEND")
+        ?: localProperties.getProperty("useFakeBackend", "true")
 }
