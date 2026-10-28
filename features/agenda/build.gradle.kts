@@ -16,14 +16,18 @@ android {
     defaultConfig {
         minSdk = 33
 
-        buildConfigField("boolean", "USE_FAKE_BACKEND", project.ext["useFakeBackend"] as String)
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
+        debug {
+            // Configurable: see useFakeBackend in the root build.gradle.kts
+            buildConfigField("boolean", "USE_FAKE_BACKEND", project.ext["useFakeBackend"] as String)
+        }
         release {
+            // Never ship the in-memory fakes (they accept hardcoded demo credentials)
+            buildConfigField("boolean", "USE_FAKE_BACKEND", "false")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

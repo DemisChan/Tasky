@@ -27,7 +27,8 @@ allprojects {
     ext["apiKey"] = "\"$rawApiKey\""
     ext["baseUrl"] = "https://tasky.pl-coding.com/"
 
-    // true = run against in-memory fake repositories (no network / API key needed).
+    // true = run DEBUG builds against in-memory fake repositories (no network / API key needed).
+    // Release builds always use the real API regardless of this value.
     // Override with USE_FAKE_BACKEND env var or `useFakeBackend=false` in local.properties.
     ext["useFakeBackend"] = System.getenv("USE_FAKE_BACKEND")
         ?: localProperties.getProperty("useFakeBackend", "true")
