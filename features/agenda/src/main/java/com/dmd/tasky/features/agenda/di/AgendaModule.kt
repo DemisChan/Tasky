@@ -11,11 +11,14 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AgendaModule {
+
+    private const val S3_CLIENT = "s3"
 
     @Provides
     @Singleton
@@ -23,9 +26,11 @@ object AgendaModule {
         return retrofit.create(AgendaApi::class.java)
     }
 
+    // Plain client for pre-signed S3 uploads: must NOT carry the x-api-key / Authorization headers
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    @Named(S3_CLIENT)
+    fun provideS3OkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
@@ -38,7 +43,7 @@ object AgendaModule {
     fun provideAgendaRepository(
         api: AgendaApi,
         tokenManager: TokenManager,
-        okHttpClient: OkHttpClient
+        @Named(S3_CLIENT) okHttpClient: OkHttpClient
     ): AgendaRepository {
         return DefaultAgendaRepository(api, tokenManager, okHttpClient)
     }

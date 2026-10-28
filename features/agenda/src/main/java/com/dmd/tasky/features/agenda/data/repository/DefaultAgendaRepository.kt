@@ -184,7 +184,7 @@ class DefaultAgendaRepository(
                 updatedAt = LocalDateTime.now().toEpochMillisString()
             )
 
-            val updateResponse = api.updateEvent(request)
+            val updateResponse = api.updateEvent(item.id, request)
 
             if (newPhotos.isNotEmpty()) {
                 updateResponse.uploadUrls.forEachIndexed { index, uploadUrl ->
