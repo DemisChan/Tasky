@@ -21,10 +21,6 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {
-            buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
-            buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")
-        }
         release {
             isMinifyEnabled = false
             proguardFiles(

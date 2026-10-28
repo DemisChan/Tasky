@@ -23,18 +23,6 @@ android {
     }
 
     buildTypes {
-        val localProperties = Properties()
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            localPropertiesFile.inputStream().use {
-                localProperties.load(it)
-            }
-        }
-
-        getByName("debug") {
-            buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
-            buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")
-        }
         release {
             isMinifyEnabled = false
             proguardFiles(
