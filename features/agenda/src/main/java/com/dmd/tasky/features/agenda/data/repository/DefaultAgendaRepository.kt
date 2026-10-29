@@ -11,6 +11,8 @@ import com.dmd.tasky.features.agenda.domain.model.AgendaItemDetails
 import com.dmd.tasky.features.agenda.domain.model.Attendee
 import com.dmd.tasky.features.agenda.domain.repository.*
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -88,9 +90,12 @@ class DefaultAgendaRepository(
                 .put(requestBody)
                 .build()
 
-            okHttpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw IOException("S3 upload failed with code: ${response.code}")
+            // execute() blocks; never run it on the caller's (possibly Main) dispatcher
+            withContext(Dispatchers.IO) {
+                okHttpClient.newCall(request).execute().use { response ->
+                    if (!response.isSuccessful) {
+                        throw IOException("S3 upload failed with code: ${response.code}")
+                    }
                 }
             }
         }
@@ -134,7 +139,7 @@ class DefaultAgendaRepository(
         val eventDetails = item.details as? AgendaItemDetails.Event
             ?: return Result.Error(AgendaError.VALIDATION_ERROR)
 
-        return safeApiCall("createEvent") {
+        val created = safeApiCall("createEvent") {
             val photoKeys = photos.mapIndexed { index, _ -> "photo$index" }
             val request = CreateEventRequest(
                 id = item.id,
@@ -148,19 +153,11 @@ class DefaultAgendaRepository(
                 updatedAt = LocalDateTime.now().toEpochMillisString()
             )
 
-            val createResponse = api.createEvent(request)
-
-            // Phase 2: Upload photos to S3
-            if (photos.isNotEmpty()) {
-                createResponse.uploadUrls.forEachIndexed { index, uploadUrl ->
-                    val uploadResult = uploadPhotoToS3(uploadUrl.url, photos[index])
-                    if (uploadResult is Result.Error) {
-                        throw Exception("Photo upload failed")
-                    }
-                }
-            }
-
-            createResponse.event.toAgendaItem()
+            api.createEvent(request)
+        }
+        return when (created) {
+            is Result.Error -> created
+            is Result.Success -> uploadPhotosAndConfirm(item.id, created.data, photos)
         }
     }
 
@@ -168,7 +165,7 @@ class DefaultAgendaRepository(
         val eventDetails = item.details as? AgendaItemDetails.Event
             ?: return Result.Error(AgendaError.VALIDATION_ERROR)
 
-        return safeApiCall("updateEvent") {
+        val updated = safeApiCall("updateEvent") {
             val newPhotoKeys = newPhotos.mapIndexed { index, _ -> "photo$index" }
 
             val request = UpdateEventRequest(
@@ -184,15 +181,41 @@ class DefaultAgendaRepository(
                 updatedAt = LocalDateTime.now().toEpochMillisString()
             )
 
-            val updateResponse = api.updateEvent(item.id, request)
+            api.updateEvent(item.id, request)
+        }
+        return when (updated) {
+            is Result.Error -> updated
+            is Result.Success -> uploadPhotosAndConfirm(item.id, updated.data, newPhotos)
+        }
+    }
 
-            if (newPhotos.isNotEmpty()) {
-                updateResponse.uploadUrls.forEachIndexed { index, uploadUrl ->
-                    uploadPhotoToS3(uploadUrl.url, newPhotos[index])
-                }
-            }
+    /**
+     * Phase 2 of the two-phase flow in the API doc: upload each photo to its pre-signed URL,
+     * then confirm the uploaded keys so the server publishes download URLs.
+     * Shared by create and update so both fail the same way: the first failed upload is returned.
+     */
+    private suspend fun uploadPhotosAndConfirm(
+        eventId: String,
+        response: CreateEventResponse,
+        photos: List<ByteArray>
+    ): AgendaItemResult {
+        if (photos.isEmpty() || response.uploadUrls.isEmpty()) {
+            return Result.Success(response.event.toAgendaItem())
+        }
 
-            updateResponse.event.toAgendaItem()
+        for (upload in response.uploadUrls) {
+            // Match by key ("photo0" -> index 0); the server may not return URLs in request order
+            val photo = upload.photoKey.removePrefix("photo").toIntOrNull()?.let { photos.getOrNull(it) }
+                ?: return Result.Error(AgendaError.VALIDATION_ERROR)
+            val uploadResult = uploadPhotoToS3(upload.url, photo)
+            if (uploadResult is Result.Error) return uploadResult
+        }
+
+        return safeApiCall("confirmUpload") {
+            api.confirmUpload(
+                eventId,
+                ConfirmUploadRequest(uploadedKeys = response.uploadUrls.map { it.uploadKey })
+            ).event.toAgendaItem()
         }
     }
 
