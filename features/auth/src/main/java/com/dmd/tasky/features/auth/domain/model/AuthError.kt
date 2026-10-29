@@ -1,8 +1,6 @@
 package com.dmd.tasky.features.auth.domain.model
 
-import com.dmd.tasky.core.domain.util.EmptyResult
-import com.dmd.tasky.core.domain.util.Error
-import com.dmd.tasky.core.domain.util.Result
+import com.dmd.tasky.core.domain.util.*
 
 sealed interface AuthError : Error {
     enum class Network : AuthError {

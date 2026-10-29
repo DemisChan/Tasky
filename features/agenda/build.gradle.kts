@@ -19,11 +19,13 @@ android {
     }
 
     buildTypes {
-        getByName("debug") {
-            buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
-            buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")
+        debug {
+            // Configurable: see useFakeBackend in the root build.gradle.kts
+            buildConfigField("boolean", "USE_FAKE_BACKEND", project.ext["useFakeBackend"] as String)
         }
         release {
+            // Never ship the in-memory fakes (they accept hardcoded demo credentials)
+            buildConfigField("boolean", "USE_FAKE_BACKEND", "false")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -62,6 +64,12 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    // Image loading
+    implementation(libs.coil.compose)
+
+    // Permissions (for photo picker)
+    implementation(libs.accompanist.permissions)
 
     // Hilt
     implementation(libs.hilt.android)

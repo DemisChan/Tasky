@@ -2,22 +2,16 @@ package com.dmd.tasky.features.auth.data.repository
 
 import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.core.domain.util.Result
-import com.dmd.tasky.features.auth.data.remote.AuthApi
-import com.dmd.tasky.features.auth.data.remote.AuthResponse
-import com.dmd.tasky.features.auth.data.remote.dto.LoginRequest
-import com.dmd.tasky.features.auth.data.remote.dto.RegisterRequest
+import com.dmd.tasky.features.auth.data.remote.*
+import com.dmd.tasky.features.auth.data.remote.dto.*
 import com.dmd.tasky.features.auth.domain.model.AuthError
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockk
+import io.mockk.*
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody.Companion.toResponseBody
+import org.junit.*
 import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
-import retrofit2.HttpException
-import retrofit2.Response
+import retrofit2.*
 
 class DefaultAuthRepositoryTest {
     private lateinit var authApi: AuthApi
