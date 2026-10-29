@@ -3,13 +3,22 @@ package com.dmd.tasky.features.agenda.data.repository
 import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.features.agenda.data.remote.AgendaApi
-import com.dmd.tasky.features.agenda.data.remote.dto.*
+import com.dmd.tasky.features.agenda.data.remote.dto.CreateEventRequest
+import com.dmd.tasky.features.agenda.data.remote.dto.CreateReminderRequest
+import com.dmd.tasky.features.agenda.data.remote.dto.CreateTaskRequest
+import com.dmd.tasky.features.agenda.data.remote.dto.UpdateEventRequest
+import com.dmd.tasky.features.agenda.data.remote.dto.UpdateReminderRequest
+import com.dmd.tasky.features.agenda.data.remote.dto.UpdateTaskRequest
 import com.dmd.tasky.features.agenda.data.remote.toAgendaItem
-import com.dmd.tasky.features.agenda.data.remote.toAttendee
 import com.dmd.tasky.features.agenda.domain.model.AgendaItem
 import com.dmd.tasky.features.agenda.domain.model.AgendaItemDetails
 import com.dmd.tasky.features.agenda.domain.model.Attendee
-import com.dmd.tasky.features.agenda.domain.repository.*
+import com.dmd.tasky.features.agenda.domain.repository.AgendaError
+import com.dmd.tasky.features.agenda.domain.repository.AgendaItemResult
+import com.dmd.tasky.features.agenda.domain.repository.AgendaRepository
+import com.dmd.tasky.features.agenda.domain.repository.AgendaResult
+import com.dmd.tasky.features.agenda.domain.repository.AttendeeResult
+import com.dmd.tasky.features.agenda.domain.repository.LogoutResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -122,6 +131,7 @@ class DefaultAgendaRepository(
                 // Combine and sort by time (common property - no type check needed!)
                 Result.Success((events + tasks + reminders).sortedBy { it.time })
             }
+
             is Result.Error -> result
         }
     }
@@ -153,15 +163,29 @@ class DefaultAgendaRepository(
                 updatedAt = LocalDateTime.now().toEpochMillisString()
             )
 
-            api.createEvent(request)
-        }
-        return when (created) {
-            is Result.Error -> created
-            is Result.Success -> uploadPhotosAndConfirm(item.id, created.data, photos)
+            val createResponse = api.createEvent(request)
+
+            // Phase 2: Upload photos to S3
+            if (photos.isNotEmpty()) {
+                withContext(Dispatchers.IO) {
+                    createResponse.uploadUrls.forEachIndexed { index, uploadUrl ->
+                        val uploadResult = uploadPhotoToS3(uploadUrl.url, photos[index])
+                        if (uploadResult is Result.Error) {
+                            throw Exception("Photo upload failed")
+                        }
+                    }
+                }
+
+            }
+
+            createResponse.event.toAgendaItem()
         }
     }
 
-    override suspend fun updateEvent(item: AgendaItem, newPhotos: List<ByteArray>): AgendaItemResult {
+    override suspend fun updateEvent(
+        item: AgendaItem,
+        newPhotos: List<ByteArray>
+    ): AgendaItemResult {
         val eventDetails = item.details as? AgendaItemDetails.Event
             ?: return Result.Error(AgendaError.VALIDATION_ERROR)
 

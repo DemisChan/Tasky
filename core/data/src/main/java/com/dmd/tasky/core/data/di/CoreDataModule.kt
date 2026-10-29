@@ -68,15 +68,11 @@ object CoreDataModule {
         apiKeyInterceptor: ApiKeyInterceptor,
         authTokenInterceptor: AuthTokenInterceptor
     ): OkHttpClient {
-        // Request/response bodies carry passwords and tokens, so never log them (BASIC = method, url, code)
         val logging = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BASIC
-            } else {
-                HttpLoggingInterceptor.Level.NONE
-            }
             redactHeader("Authorization")
-            redactHeader("x-api-key")
+            redactHeader("Api-Key")
+            level =
+                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
         }
         return OkHttpClient.Builder()
             .addInterceptor(apiKeyInterceptor)
