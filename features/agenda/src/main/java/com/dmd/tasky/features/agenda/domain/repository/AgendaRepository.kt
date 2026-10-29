@@ -1,8 +1,7 @@
 package com.dmd.tasky.features.agenda.domain.repository
 
 import com.dmd.tasky.core.domain.util.Result
-import com.dmd.tasky.features.agenda.domain.model.AgendaItem
-import com.dmd.tasky.features.agenda.domain.model.Attendee
+import com.dmd.tasky.features.agenda.domain.model.*
 import java.time.LocalDate
 
 /**

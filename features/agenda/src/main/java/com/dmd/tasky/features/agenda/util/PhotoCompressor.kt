@@ -1,16 +1,11 @@
 package com.dmd.tasky.features.agenda.util
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
+import android.graphics.*
 import android.net.Uri
-import android.os.Build
-import android.provider.MediaStore
 import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.features.agenda.domain.repository.AgendaError
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okio.`-DeprecatedOkio`.source
+import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.ByteArrayOutputStream
 

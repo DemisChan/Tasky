@@ -3,11 +3,9 @@ package com.dmd.tasky.features.auth.di
 import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.features.auth.BuildConfig
 import com.dmd.tasky.features.auth.data.remote.AuthApi
-import com.dmd.tasky.features.auth.data.repository.DefaultAuthRepository
-import com.dmd.tasky.features.auth.data.repository.InMemoryAuthRepository
+import com.dmd.tasky.features.auth.data.repository.*
 import com.dmd.tasky.features.auth.domain.AuthRepository
-import dagger.Module
-import dagger.Provides
+import dagger.*
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit

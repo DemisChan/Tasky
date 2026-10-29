@@ -3,13 +3,11 @@ package com.dmd.tasky.features.auth.data.repository
 import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.core.domain.util.Result
 import com.dmd.tasky.features.auth.domain.model.AuthError
-import io.mockk.coVerify
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.test.runTest
+import org.junit.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
 
 class InMemoryAuthRepositoryTest {
     private lateinit var tokenManager: TokenManager

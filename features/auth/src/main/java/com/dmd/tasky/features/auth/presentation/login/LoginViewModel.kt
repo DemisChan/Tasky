@@ -1,13 +1,8 @@
 package com.dmd.tasky.features.auth.presentation.login
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.dmd.tasky.core.domain.util.UiText
-import com.dmd.tasky.core.domain.util.onError
-import com.dmd.tasky.core.domain.util.onSuccess
+import androidx.compose.runtime.*
+import androidx.lifecycle.*
+import com.dmd.tasky.core.domain.util.*
 import com.dmd.tasky.features.auth.domain.AuthRepository
 import com.dmd.tasky.features.auth.presentation.util.toUiText
 import dagger.hilt.android.lifecycle.HiltViewModel

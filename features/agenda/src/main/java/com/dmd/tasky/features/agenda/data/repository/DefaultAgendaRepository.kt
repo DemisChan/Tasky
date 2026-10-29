@@ -2,37 +2,19 @@ package com.dmd.tasky.features.agenda.data.repository
 
 import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.core.domain.util.Result
-import com.dmd.tasky.features.agenda.data.remote.AgendaApi
-import com.dmd.tasky.features.agenda.data.remote.dto.CreateEventRequest
-import com.dmd.tasky.features.agenda.data.remote.dto.CreateReminderRequest
-import com.dmd.tasky.features.agenda.data.remote.dto.CreateTaskRequest
-import com.dmd.tasky.features.agenda.data.remote.dto.UpdateEventRequest
-import com.dmd.tasky.features.agenda.data.remote.dto.UpdateReminderRequest
-import com.dmd.tasky.features.agenda.data.remote.dto.UpdateTaskRequest
-import com.dmd.tasky.features.agenda.data.remote.toAgendaItem
-import com.dmd.tasky.features.agenda.domain.model.AgendaItem
-import com.dmd.tasky.features.agenda.domain.model.AgendaItemDetails
-import com.dmd.tasky.features.agenda.domain.model.Attendee
-import com.dmd.tasky.features.agenda.domain.repository.AgendaError
-import com.dmd.tasky.features.agenda.domain.repository.AgendaItemResult
-import com.dmd.tasky.features.agenda.domain.repository.AgendaRepository
-import com.dmd.tasky.features.agenda.domain.repository.AgendaResult
-import com.dmd.tasky.features.agenda.domain.repository.AttendeeResult
-import com.dmd.tasky.features.agenda.domain.repository.LogoutResult
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.dmd.tasky.features.agenda.data.remote.*
+import com.dmd.tasky.features.agenda.data.remote.dto.*
+import com.dmd.tasky.features.agenda.domain.model.*
+import com.dmd.tasky.features.agenda.domain.repository.*
+import kotlinx.coroutines.*
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.*
 
 class DefaultAgendaRepository(
     private val api: AgendaApi,
@@ -149,8 +131,8 @@ class DefaultAgendaRepository(
         val eventDetails = item.details as? AgendaItemDetails.Event
             ?: return Result.Error(AgendaError.VALIDATION_ERROR)
 
-        val created = safeApiCall("createEvent") {
-            val photoKeys = photos.mapIndexed { index, _ -> "photo$index" }
+        return safeApiCall("createEvent") {
+            val photoKeys = List(photos.size) { index -> "photo$index" }
             val request = CreateEventRequest(
                 id = item.id,
                 title = item.title,
@@ -229,8 +211,9 @@ class DefaultAgendaRepository(
 
         for (upload in response.uploadUrls) {
             // Match by key ("photo0" -> index 0); the server may not return URLs in request order
-            val photo = upload.photoKey.removePrefix("photo").toIntOrNull()?.let { photos.getOrNull(it) }
-                ?: return Result.Error(AgendaError.VALIDATION_ERROR)
+            val photo =
+                upload.photoKey.removePrefix("photo").toIntOrNull()?.let { photos.getOrNull(it) }
+                    ?: return Result.Error(AgendaError.VALIDATION_ERROR)
             val uploadResult = uploadPhotoToS3(upload.url, photo)
             if (uploadResult is Result.Error) return uploadResult
         }

@@ -1,7 +1,6 @@
 package com.dmd.tasky.features.agenda.domain.usecase
 
-import com.dmd.tasky.features.agenda.domain.repository.AgendaRepository
-import com.dmd.tasky.features.agenda.domain.repository.LogoutResult
+import com.dmd.tasky.features.agenda.domain.repository.*
 import javax.inject.Inject
 
 class LogoutUseCase @Inject constructor(

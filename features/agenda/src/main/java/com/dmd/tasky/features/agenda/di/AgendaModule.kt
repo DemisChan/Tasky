@@ -3,18 +3,15 @@ package com.dmd.tasky.features.agenda.di
 import com.dmd.tasky.core.data.token.TokenManager
 import com.dmd.tasky.features.agenda.BuildConfig
 import com.dmd.tasky.features.agenda.data.remote.AgendaApi
-import com.dmd.tasky.features.agenda.data.repository.DefaultAgendaRepository
-import com.dmd.tasky.features.agenda.data.repository.InMemoryAgendaRepository
+import com.dmd.tasky.features.agenda.data.repository.*
 import com.dmd.tasky.features.agenda.domain.repository.AgendaRepository
-import dagger.Module
-import dagger.Provides
+import dagger.*
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
-import javax.inject.Named
-import javax.inject.Singleton
+import javax.inject.*
 
 @Module
 @InstallIn(SingletonComponent::class)
