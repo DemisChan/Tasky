@@ -55,10 +55,7 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoading = true, error = null)
 
-            Timber.d(" Starting registration...")
-            Timber.d("   Full Name: '${state.fullName}' (length: ${state.fullName.length})")
-            Timber.d("   Email: '${state.email}'")
-            Timber.d("   Password: '${state.password}' (length: ${state.password.length})")
+            Timber.d("Registration started")
 
             authRepository.register(
                 fullName = state.fullName,
