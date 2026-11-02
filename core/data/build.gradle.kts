@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -10,22 +8,19 @@ plugins {
 
 android {
     namespace = "com.dmd.tasky.core.data"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         minSdk = 33
+
+        buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
+        buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
-        getByName("debug") {
-            buildConfigField("String", "API_KEY", project.ext["apiKey"] as String)
-            buildConfigField("String", "BASE_URL", "\"${project.ext["baseUrl"]}\"")
-        }
         release {
             isMinifyEnabled = false
             proguardFiles(

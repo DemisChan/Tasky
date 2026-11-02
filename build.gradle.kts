@@ -19,7 +19,17 @@ allprojects {
         }
     }
 
-    val apiKey = System.getenv("API_KEY") ?: localProperties.getProperty("apiKey", "")
-    ext["apiKey"] = apiKey
+    // Stored as a ready-to-use Java string literal so buildConfigField never gets an empty value.
+    // Accepts apiKey=abc or apiKey="abc" in local.properties; CI may pass API_KEY or ORG_GRADLE_PROJECT_API_KEY.
+    val rawApiKey = (System.getenv("API_KEY")
+        ?: System.getenv("ORG_GRADLE_PROJECT_API_KEY")
+        ?: localProperties.getProperty("apiKey", "")).trim().trim('"')
+    ext["apiKey"] = "\"$rawApiKey\""
     ext["baseUrl"] = "https://tasky.pl-coding.com/"
+
+    // true = run DEBUG builds against in-memory fake repositories (no network / API key needed).
+    // Release builds always use the real API regardless of this value.
+    // Override with USE_FAKE_BACKEND env var or `useFakeBackend=false` in local.properties.
+    ext["useFakeBackend"] = System.getenv("USE_FAKE_BACKEND")
+        ?: localProperties.getProperty("useFakeBackend", "true")
 }
