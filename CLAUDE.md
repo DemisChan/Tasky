@@ -4,12 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Current Progress & Next Steps
 
-### Current Task: Ready for PR Review ✅
+**Branch**: `featureAgenda` (auth, token persistence and splash are merged to `main`; the agenda feature lives here).
 
-**Branch**: `splashScreen`
-**Status**: Complete - Ready to merge
+**Status**: Agenda data layer, domain layer, ViewModel and screen exist. The Tasky API key no longer works, so the app runs against in-memory fakes in debug builds (see "Fake Backend" below).
 
-All implementation and testing complete for splash screen feature using Android 12+ Splash Screen API.
+**Open work and known issues**: see `TODO.md` (prioritised: bugs, features, tech debt). Do not duplicate that list here.
 
 ### Recently Completed
 
@@ -219,7 +218,8 @@ The project follows a feature-based modular architecture:
 ```
 :app                    - Main application module, hosts MainActivity and TaskyApplication
 :features:auth          - Authentication feature (login, register)
-:core:domain:util       - Shared domain utilities (Result, Error)
+:features:agenda        - Agenda feature (events, tasks, reminders, attendees, photo upload)
+:core:domain:util       - Shared domain utilities (Result, Error, UiText)
 :core:data              - Shared data layer (token storage, session management)
 ```
 
@@ -309,19 +309,31 @@ Example from auth feature:
 
 ### API Configuration
 
-The auth feature uses `BuildConfig` for API configuration:
-- Base URL: Defined in `features:auth/build.gradle.kts` as `BuildConfig.BASE_URL`
-- API Key: Loaded from `local.properties` file as `apiKey` property
-- Interceptor: `ApiKeyInterceptor` adds API key to requests
+`BuildConfig` fields are defined in the module that uses them:
+- `core:data` (all build variants): `API_KEY` and `BASE_URL`. `ApiKeyInterceptor` adds the key as the `x-api-key` header.
+- `features:auth` and `features:agenda`: `USE_FAKE_BACKEND` (debug is configurable, release is always `false`).
 
-**Note**: The `local.properties` file is git-ignored and must be created locally with the `apiKey` property.
+Values are resolved once in the root `build.gradle.kts`:
+- `apiKey`: `API_KEY` env var, then `ORG_GRADLE_PROJECT_API_KEY`, then `apiKey` in `local.properties`. Quoted or unquoted both work; empty is allowed.
+- `useFakeBackend`: `USE_FAKE_BACKEND` env var, then `useFakeBackend` in `local.properties`, default `true`.
+
+**Note**: `local.properties` is git-ignored. Never commit the API key.
+
+### Fake Backend
+
+The real Tasky backend rejects our API key, so debug builds use in-memory repositories:
+- `InMemoryAuthRepository` (features/auth) and `InMemoryAgendaRepository` (features/agenda).
+- Selected in `AuthModule` / `AgendaModule` via `BuildConfig.USE_FAKE_BACKEND`. State lives in the singleton and is lost when the process dies.
+- Rules follow `tasky-api.pdf` (name 4-50 chars, password 9+ with upper/lower/digit, 409 on duplicates, 404 on missing ids, `from < to`, `remindAt <= from`).
+- Seeded login: `demo@tasky.app` / `Demo12345`. `debug@debug.com` / `Debug12345` gets a 10 second token, as in the API doc.
+- Limits: photos have empty URLs, `removeAttendee` is a no-op, and the HTTP layer (DTOs, mappers, S3) is not exercised. Set `useFakeBackend=false` to test against a real API.
 
 ### Networking
 
-Retrofit setup in `AuthModule`:
+Retrofit and the shared `OkHttpClient` are provided by `CoreDataModule` in `:core:data`:
 - Uses Kotlinx Serialization for JSON parsing
-- OkHttp with logging interceptor (body level logging)
-- Custom `ApiKeyInterceptor` for authentication
+- Interceptors: `ApiKeyInterceptor` -> `AuthTokenInterceptor` -> `HttpLoggingInterceptor` (`NONE` in release; see `TODO.md` for the debug logging issue)
+- Photo uploads to pre-signed S3 URLs use a separate plain client, `@Named("s3")` in `AgendaModule`, so no API key or auth header is sent to S3
 - DTOs in `data/remote/dto/` package
 - API interface in `data/remote/` package
 
