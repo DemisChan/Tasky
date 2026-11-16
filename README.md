@@ -115,7 +115,6 @@ Current coverage: auth ViewModels, repository token-saving, and startup auth sta
 
 This project prioritises production-shaped decisions over shortcuts: centralised networking, a data-layer boundary that tokens never escape, platform-native splash handling, and explicit error modelling. Several trade-offs (DataStore vs EncryptedSharedPreferences, Channels vs StateFlow for events, fakes vs mocks) were made deliberately and are documented in `CLAUDE.md`.
 
-<!-- TODO: choose a licence. If unsure, MIT is the common default for portfolio repos. -->
 ## License
 
-<!-- e.g. This project is licensed under the MIT License — see LICENSE for details. -->
+This project is licensed under the MIT License — see [LICENSE](LICENSE) for details.

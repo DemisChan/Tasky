@@ -1,29 +1,29 @@
 name: Kotlin CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    # Global environment variables for ALL steps in this job
-    env:
-      ORG_GRADLE_PROJECT_API_KEY: ${{ secrets.API_KEY }}
+# Least privilege: these checks only need to read the repo
+permissions:
+  contents: read
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+# Cancel superseded runs on the same branch/PR to save runner minutes
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Lint & unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -32,13 +32,26 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'gradle' 
+          cache: 'gradle'
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # No API key is needed: the build falls back to an empty key, and
+      # debug builds can run against the in-memory fake backend.
       - name: Run Lint
-        run: ./gradlew lint 
+        run: ./gradlew lint
 
       - name: Run Unit Tests
         run: ./gradlew test
+
+      # Keep reports for debugging when a check fails
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/lint-results-*.html
+            **/build/reports/tests/
+          if-no-files-found: ignore
