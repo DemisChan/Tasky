@@ -1,8 +1,6 @@
 package com.dmd.tasky.features.auth.domain
 
-import com.dmd.tasky.features.auth.domain.model.LoginResult
-import com.dmd.tasky.features.auth.domain.model.LogoutResult
-import com.dmd.tasky.features.auth.domain.model.RegisterResult
+import com.dmd.tasky.features.auth.domain.model.*
 
 interface AuthRepository {
     suspend fun login(email: String, password: String): LoginResult

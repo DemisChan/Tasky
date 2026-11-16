@@ -3,11 +3,8 @@ package com.dmd.tasky.ui.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
-import androidx.navigation.compose.rememberNavController
-import com.dmd.tasky.features.auth.presentation.agenda.AgendaScreen
+import androidx.navigation.compose.*
+import com.dmd.tasky.features.agenda.presentation.AgendaScreen
 import com.dmd.tasky.features.auth.presentation.login.TaskyLoginScreen
 import com.dmd.tasky.features.auth.presentation.register.TaskyRegisterScreen
 
@@ -57,7 +54,14 @@ fun TaskyNavHost(
         ) {
             composable<AgendaGraphRoutes.Agenda> {
                 AgendaScreen(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    onLogout = {
+                        navController.navigate(AuthGraphRoutes.AuthGraph) {
+                            popUpTo(AgendaGraphRoutes.AgendaGraph) {
+                                inclusive = true
+                            }
+                        }
+                    }
                 )
             }
         }

@@ -1,20 +1,15 @@
 package com.dmd.tasky.features.auth.presentation.login
 
 import app.cash.turbine.test
-import com.dmd.tasky.core.domain.util.Result
-import com.dmd.tasky.core.domain.util.UiText
+import com.dmd.tasky.core.domain.util.*
 import com.dmd.tasky.features.auth.R
 import com.dmd.tasky.features.auth.domain.AuthRepository
 import com.dmd.tasky.features.auth.domain.model.AuthError
 import com.dmd.tasky.features.auth.presentation.MainCoroutineRule
-import io.mockk.coEvery
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 
 @ExperimentalCoroutinesApi
 class LoginViewModelTest {

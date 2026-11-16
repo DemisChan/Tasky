@@ -2,14 +2,11 @@ package com.dmd.tasky.core.data.di
 
 import android.content.Context
 import com.dmd.tasky.core.data.BuildConfig
-import com.dmd.tasky.core.data.remote.ApiKeyInterceptor
-import com.dmd.tasky.core.data.remote.AuthTokenInterceptor
+import com.dmd.tasky.core.data.remote.*
 import com.dmd.tasky.core.data.security.CryptoManager
-import com.dmd.tasky.core.data.token.DataStoreTokenStorage
-import com.dmd.tasky.core.data.token.TokenManager
+import com.dmd.tasky.core.data.token.*
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import dagger.Module
-import dagger.Provides
+import dagger.*
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
@@ -68,8 +65,12 @@ object CoreDataModule {
         apiKeyInterceptor: ApiKeyInterceptor,
         authTokenInterceptor: AuthTokenInterceptor
     ): OkHttpClient {
-        val logging = HttpLoggingInterceptor()
-        logging.level = HttpLoggingInterceptor.Level.BODY
+        val logging = HttpLoggingInterceptor().apply {
+            redactHeader("Authorization")
+            redactHeader("Api-Key")
+            level =
+                if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+        }
         return OkHttpClient.Builder()
             .addInterceptor(apiKeyInterceptor)
             .addInterceptor(authTokenInterceptor)

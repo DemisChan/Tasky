@@ -5,9 +5,8 @@ local.properties
 *.iml
 
 # Build files
-build/
+/build
 */build/
-
 # Other
 captures/
 .DS_Store

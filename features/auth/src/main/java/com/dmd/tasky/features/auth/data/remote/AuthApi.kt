@@ -1,9 +1,7 @@
 package com.dmd.tasky.features.auth.data.remote
 
-import com.dmd.tasky.features.auth.data.remote.dto.LoginRequest
-import com.dmd.tasky.features.auth.data.remote.dto.RegisterRequest
-import retrofit2.http.Body
-import retrofit2.http.POST
+import com.dmd.tasky.features.auth.data.remote.dto.*
+import retrofit2.http.*
 
 interface AuthApi {
     @POST("auth/login")

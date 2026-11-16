@@ -46,6 +46,7 @@ android {
 dependencies {
 
     implementation(projects.features.auth)
+    implementation(projects.features.agenda)
     implementation(projects.core.data)
 
     implementation(libs.androidx.core.ktx)

@@ -1,9 +1,6 @@
-import com.dmd.tasky.core.domain.util.EmptyResult
-import com.dmd.tasky.core.domain.util.Result
+import com.dmd.tasky.core.domain.util.*
 import com.dmd.tasky.features.auth.domain.AuthRepository
-import com.dmd.tasky.features.auth.domain.model.AuthError
-import com.dmd.tasky.features.auth.domain.model.LoginResult
-import com.dmd.tasky.features.auth.domain.model.RegisterResult
+import com.dmd.tasky.features.auth.domain.model.*
 import kotlinx.coroutines.delay
 
 class FakeAuthRepository : AuthRepository {

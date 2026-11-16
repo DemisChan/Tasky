@@ -2,19 +2,15 @@ package com.dmd.tasky.features.auth.presentation.register
 
 import FakeAuthRepository
 import app.cash.turbine.test
-import com.dmd.tasky.core.domain.util.Result
-import com.dmd.tasky.core.domain.util.UiText
+import com.dmd.tasky.core.domain.util.*
 import com.dmd.tasky.features.auth.R
 import com.dmd.tasky.features.auth.domain.model.AuthError
 import com.dmd.tasky.features.auth.presentation.MainCoroutineRule
 import com.dmd.tasky.features.auth.presentation.util.toUiText
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import kotlinx.coroutines.test.*
+import org.junit.*
 
 @ExperimentalCoroutinesApi
 class RegisterViewModelTest {
